@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is a [Next.js](https://nextjs.org) project for the Roro Leave Management System.
 
 ## Getting Started
 
@@ -17,6 +17,22 @@ bun dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+> **Troubleshooting**
+>
+> If you encounter a `TurbopackInternalError` (for example: *Cell CellId ... no longer exists in task DiskFileSystem::new_internal*)
+> while running `npm run dev`, it is usually caused by the experimental Turbopack bundler.
+> This can happen when your project path contains spaces or the cache becomes corrupted.
+>
+> Two simple remedies:
+>
+> 1. Use the modified dev script (`npm run dev` already includes `--turbo=false`) to force the
+>    webpack-based compiler.
+> 2. Delete the `.next`/`.turbo` cache folders and restart the server.
+>
+> If you prefer to keep Turbopack enabled, run the dev server with `next dev --turbo` and ensure your
+> project path does not include spaces.
+>
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
