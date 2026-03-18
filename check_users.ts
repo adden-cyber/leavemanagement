@@ -6,14 +6,14 @@ const adapter = new PrismaLibSql({
     authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient({ adapter: adapter as any });
 
 async function main() {
     try {
         const users = await prisma.user.findMany();
         console.log('Total users in database:', users.length);
         console.log('Users:');
-        users.forEach(u => {
+        users.forEach((u: any) => {
             console.log(`- Email: ${u.email}, Role: ${u.role}, Hash length: ${u.password.length}`);
         });
     } catch (e: any) {
