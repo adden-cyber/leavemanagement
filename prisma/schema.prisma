@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
+  id        String    @id @default(cuid()) @map("_id")
   email     String    @unique
   name      String?
   password  String
@@ -23,7 +23,7 @@ model User {
 }
 
 model Employee {
-  id               String         @id @default(cuid())
+  id               String         @id @default(cuid()) @map("_id")
   userId           String         @unique
   user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   fullName         String
@@ -55,7 +55,7 @@ model Employee {
 }
 
 model Attendance {
-  id         String    @id @default(cuid())
+  id         String    @id @default(cuid()) @map("_id")
   employeeId String
   employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   date       DateTime // Midnight date for easier querying
@@ -70,7 +70,7 @@ model Attendance {
 }
 
 model LeaveRequest {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   employeeId  String
   employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   startDate   DateTime
@@ -87,7 +87,7 @@ model LeaveRequest {
 }
 
 model Salary {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   employeeId  String   @unique
   employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   baseSalary  Float
@@ -97,7 +97,7 @@ model Salary {
 }
 
 model Payroll {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   employeeId  String
   employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   month       Int      // 1-12
@@ -115,7 +115,7 @@ model Payroll {
 }
 
 model ExpenseClaim {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   employeeId  String
   employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   date        DateTime // Date the expense occurred
@@ -133,7 +133,7 @@ model ExpenseClaim {
 }
 
 model JobPosting {
-  id          String      @id @default(cuid())
+  id          String      @id @default(cuid()) @map("_id")
   title       String
   department  String
   location    String      @default("Remote") // Remote, On-site, Hybrid
@@ -149,7 +149,7 @@ model JobPosting {
 }
 
 model Applicant {
-  id           String     @id @default(cuid())
+  id           String     @id @default(cuid()) @map("_id")
   jobPostingId String
   jobPosting   JobPosting @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
   firstName    String
@@ -168,7 +168,7 @@ model Applicant {
 // ==========================================
 
 model Goal {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   title       String
   description String
   status      String   @default("NOT_STARTED") // NOT_STARTED, IN_PROGRESS, AWAITING_APPROVAL, COMPLETED, CANCELLED
@@ -180,7 +180,7 @@ model Goal {
 }
 
 model GoalAssignment {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   goalId      String
   goal        Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
   employeeId  String
@@ -195,7 +195,7 @@ model GoalAssignment {
 }
 
 model Appraisal {
-  id               String   @id @default(cuid())
+  id               String   @id @default(cuid()) @map("_id")
   employeeId       String
   employee         Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   period           String   // e.g., "Q1 2024", "Annual 2024"
@@ -212,7 +212,7 @@ model Appraisal {
 // ==========================================
 
 model OnboardingTask {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   employeeId  String
   employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   title       String
@@ -230,7 +230,7 @@ model OnboardingTask {
 // ==========================================
 
 model Course {
-  id          String           @id @default(cuid())
+  id          String           @id @default(cuid()) @map("_id")
   title       String
   description String
   provider    String?          // Internal, Coursera, Udemy, etc.
@@ -242,7 +242,7 @@ model Course {
 }
 
 model EmployeeCourse {
-  id         String    @id @default(cuid())
+  id         String    @id @default(cuid()) @map("_id")
   employeeId String
   courseId   String
   employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
@@ -261,7 +261,7 @@ model EmployeeCourse {
 // ==========================================
 
 model Asset {
-  id           String    @id @default(cuid())
+  id           String    @id @default(cuid()) @map("_id")
   employeeId   String?
   employee     Employee? @relation(fields: [employeeId], references: [id], onDelete: SetNull)
   name         String
@@ -279,7 +279,7 @@ model Asset {
 // ==========================================
 
 model Announcement {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid()) @map("_id")
   title     String
   content   String
   authorId  String   // User Id of the poster
@@ -290,7 +290,7 @@ model Announcement {
 }
 
 model Activity {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid()) @map("_id")
   userId    String?  // User who performed the action (optional for system)
   userName  String
   action    String
@@ -299,7 +299,7 @@ model Activity {
 }
 
 model Survey {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   title       String
   description String?
   status      String   @default("OPEN") // DRAFT, OPEN, CLOSED
@@ -310,7 +310,7 @@ model Survey {
 }
 
 model SurveyQuestion {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   surveyId    String
   survey      Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
   questionText String
@@ -322,7 +322,7 @@ model SurveyQuestion {
 }
 
 model SurveyResponse {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   questionId  String
   question    SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
   employeeId  String
@@ -339,7 +339,7 @@ model SurveyResponse {
 // ==========================================
 
 model Benefit {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   employeeId  String
   employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   type        String   // HEALTH_INSURANCE, GYM, WELLNESS
