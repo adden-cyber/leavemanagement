@@ -63,7 +63,9 @@ export default function LeaveView() {
                 });
                 if (statusFilter) params.append('status', statusFilter);
 
-                const res = await fetch(`${apiUrl('/api/leave')}?${params}`);
+                const res = await fetch(`/api/leave?${params}`, {
+                    credentials: 'include'
+                });
                 if (res.ok) {
                     const data = await res.json();
                     setLeaves(data.leaves || []);
@@ -83,9 +85,10 @@ export default function LeaveView() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await fetch(apiUrl('/api/leave'), {
+            const res = await fetch('/api/leave', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({ startDate, endDate, reason, type: leaveType }),
             });
             if (res.ok) {
@@ -96,10 +99,12 @@ export default function LeaveView() {
                 setLeaveType('ANNUAL');
                 alert("Leave applied successfully!");
             } else {
-                alert("Failed to apply");
+                const errorData = await res.json().catch(() => ({}));
+                alert(`Failed to apply: ${errorData.message || 'Unknown error'}`);
             }
         } catch (error) {
-            console.error(error);
+            console.error('Error submitting leave:', error);
+            alert("An error occurred while submitting your leave request. Please try again.");
         }
     };
 
@@ -108,13 +113,18 @@ export default function LeaveView() {
             const res = await fetch(`/api/leave/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({ status, managerNote: note }),
             });
             if (res.ok) {
                 setRefresh(prev => prev + 1);
+            } else {
+                const errorData = await res.json().catch(() => ({}));
+                alert(`Failed to update leave request: ${errorData.message || 'Unknown error'}`);
             }
         } catch (error) {
-            console.error(error);
+            console.error('Error updating leave request:', error);
+            alert("An error occurred while updating the leave request. Please try again.");
         }
     };
 
@@ -123,15 +133,18 @@ export default function LeaveView() {
         try {
             const res = await fetch(`/api/leave/${id}`, {
                 method: 'DELETE',
+                credentials: 'include',
             });
             if (res.ok) {
                 setRefresh(prev => prev + 1);
                 alert("Leave request deleted successfully");
             } else {
-                alert("Failed to delete leave request");
+                const errorData = await res.json().catch(() => ({}));
+                alert(`Failed to delete leave request: ${errorData.message || 'Unknown error'}`);
             }
         } catch (error) {
-            console.error(error);
+            console.error('Error deleting leave request:', error);
+            alert("An error occurred while deleting the leave request. Please try again.");
         }
     };
 
