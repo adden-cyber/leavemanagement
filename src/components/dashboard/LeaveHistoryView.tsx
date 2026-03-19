@@ -30,7 +30,8 @@ export default function LeaveHistoryView() {
                 const res = await fetch('/api/leave');
                 if (!res.ok) throw new Error('Failed to load leave history');
                 const data = await res.json();
-                setLeaves(data);
+                const leavesData = Array.isArray(data) ? data : data?.leaves ?? [];
+                setLeaves(leavesData);
             } catch (err: any) {
                 setError(err.message);
             } finally {

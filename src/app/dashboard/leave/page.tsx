@@ -33,7 +33,10 @@ export default function LeavePage() {
                 const res = await fetch('/api/leave');
                 if (res.ok) {
                     const data = await res.json();
-                    setLeaves(data);
+                    const leavesData = Array.isArray(data) ? data : data?.leaves ?? [];
+                    setLeaves(leavesData);
+                } else {
+                    console.error('Failed to fetch leaves:', res.status, await res.text());
                 }
             } catch (error) {
                 console.error("Failed to fetch leaves", error);
