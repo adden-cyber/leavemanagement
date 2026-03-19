@@ -127,16 +127,31 @@ export default function SettingsView() {
             const res = await fetch(`/api/user/${session.user.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({ name: nameInput.trim() }),
             });
-            const data = await res.json();
+
+            let data: any = {};
+            try {
+                data = await res.json();
+            } catch (err) {
+                console.warn('Failed to parse /api/user response as JSON', err);
+            }
 
             // Also update the employee profile record (e.g., IC number)
-            const profileRes = await fetch(apiUrl('/api/profile'), {
+            const profileRes = await fetch('/api/profile', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({ icNo: icNoInput.trim() }),
             });
+
+            let profileData: any = {};
+            try {
+                profileData = await profileRes.json();
+            } catch (err) {
+                console.warn('Failed to parse /api/profile response as JSON', err);
+            }
 
             if (res.ok && profileRes.ok) {
                 // make sure the local input is trimmed and up‑to‑date
@@ -166,12 +181,20 @@ export default function SettingsView() {
                     window.location.reload();
                 }, 800);
             } else {
-                const profileData = await profileRes.json();
-                setProfileError(data.message || profileData.error || 'Failed to update profile');
+                setProfileError(
+                    data?.message ||
+                        data?.error ||
+                        profileData?.message ||
+                        profileData?.error ||
+                        `Failed to update profile (${res.status}/${profileRes.status})`
+                );
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving profile:', error);
-            setProfileError('An error occurred. Please try again later.');
+            setProfileError(
+                error?.message ||
+                    'An error occurred. Please try again later.'
+            );
         } finally {
             setIsSavingProfile(false);
         }
