@@ -46,16 +46,18 @@ export default function EmployeesView() {
         fetchEmployees();
     }, []);
 
-    const fetchEmployees = async () => {
+    const fetchEmployees = async (forceRefresh = false) => {
         setError(null);
         setLoading(true);
 
-        // Check cache first
-        const cachedEmployees = getCache('employees_list');
-        if (cachedEmployees) {
-            setEmployees(cachedEmployees);
-            setLoading(false);
-            return;
+        // Check cache first unless force refresh
+        if (!forceRefresh) {
+            const cachedEmployees = getCache('employees_list');
+            if (cachedEmployees) {
+                setEmployees(cachedEmployees);
+                setLoading(false);
+                return;
+            }
         }
 
         const controller = new AbortController();
@@ -65,6 +67,7 @@ export default function EmployeesView() {
             const res = await fetch(apiUrl('/api/employees'), { signal: controller.signal });
             if (res.ok) {
                 const data = await res.json();
+                console.log('Fetched employees data:', data);
                 setEmployees(data);
                 setCache('employees_list', data);
             } else {
@@ -191,14 +194,24 @@ export default function EmployeesView() {
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Admins and Employees</h1>
                     <p className="text-slate-500 mt-2 text-lg">Manage team members and their permissions.</p>
                 </div>
-                {isAdmin && (
-                    <Link
-                        href="/dashboard/employees/new"
-                        className="inline-flex items-center justify-center px-6 py-3 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20"
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => fetchEmployees(true)}
+                        disabled={loading}
+                        className="px-4 py-2.5 font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Refresh data"
                     >
-                        Add Employee
-                    </Link>
-                )}
+                        {loading ? 'Refreshing...' : '🔄 Refresh'}
+                    </button>
+                    {isAdmin && (
+                        <Link
+                            href="/dashboard/employees/new"
+                            className="inline-flex items-center justify-center px-6 py-3 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20"
+                        >
+                            Add Employee
+                        </Link>
+                    )}
+                </div>
             </div>
 
             {/* Filters & Search */}
@@ -233,7 +246,7 @@ export default function EmployeesView() {
                         </div>
                         <button
                             type="button"
-                            onClick={fetchEmployees}
+                            onClick={() => fetchEmployees()}
                             className="self-start px-4 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors"
                         >
                             Retry
