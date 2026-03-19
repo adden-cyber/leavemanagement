@@ -350,7 +350,7 @@ export default function LeaveView() {
                                                                     const note = prompt("Reason for rejection (required):");
                                                                     if (note) handleAction(leave.id, 'REJECTED', note);
                                                                 }}
-                                                                className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700 border border-amber-200 transition-colors"
+                                                                className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border border-red-200 transition-colors"
                                                                 title="Reject"
                                                             >
                                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
