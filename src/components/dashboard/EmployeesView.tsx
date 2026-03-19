@@ -35,6 +35,7 @@ export default function EmployeesView() {
 
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     const [selectedEmployeeForLeaves, setSelectedEmployeeForLeaves] = useState<Employee | null>(null);
@@ -46,6 +47,9 @@ export default function EmployeesView() {
     }, []);
 
     const fetchEmployees = async () => {
+        setError(null);
+        setLoading(true);
+
         // Check cache first
         const cachedEmployees = getCache('employees_list');
         if (cachedEmployees) {
@@ -54,16 +58,28 @@ export default function EmployeesView() {
             return;
         }
 
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), 10000);
+
         try {
-            const res = await fetch(apiUrl('/api/employees'));
+            const res = await fetch(apiUrl('/api/employees'), { signal: controller.signal });
             if (res.ok) {
                 const data = await res.json();
                 setEmployees(data);
                 setCache('employees_list', data);
+            } else {
+                const errText = await res.text();
+                setError(`Failed to load employees: ${res.status} ${res.statusText}${errText ? ` - ${errText}` : ''}`);
             }
-        } catch (error) {
-            console.error('Failed to fetch employees', error);
+        } catch (error: any) {
+            if (error.name === 'AbortError') {
+                setError('Fetching employees timed out; please refresh the page.');
+            } else {
+                console.error('Failed to fetch employees', error);
+                setError('Failed to load employees. Please try again later.');
+            }
         } finally {
+            window.clearTimeout(timeoutId);
             setLoading(false);
         }
     };
@@ -95,8 +111,8 @@ export default function EmployeesView() {
         emp.department?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const filteredAdmins = filteredEmployees.filter(emp => emp.user?.role === 'ADMIN');
-    const filteredStaff = filteredEmployees.filter(emp => emp.user?.role !== 'ADMIN');
+    const filteredAdmins = filteredEmployees.filter(emp => emp.user?.role?.toUpperCase?.() === 'ADMIN');
+    const filteredStaff = filteredEmployees.filter(emp => emp.user?.role?.toUpperCase?.() !== 'ADMIN');
 
     const [showAdmins, setShowAdmins] = useState(true);
     const [showStaff, setShowStaff] = useState(true);
@@ -207,6 +223,24 @@ export default function EmployeesView() {
                     </button>
                 </div>
             </div>
+
+            {error && (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-red-800">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div>
+                            <p className="font-semibold">Could not load members</p>
+                            <p className="text-sm mt-1">{error}</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={fetchEmployees}
+                            className="self-start px-4 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Admins Table */}
             <div className="bg-white border border-slate-100 rounded-lg shadow-md overflow-hidden mt-10">
