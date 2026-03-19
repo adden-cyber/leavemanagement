@@ -105,7 +105,13 @@ export default function LeaveHistoryView() {
                                         </div>
 
                                         <div className="flex items-center gap-2">
-                                            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                                            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
+                                                leave.status === 'APPROVED'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : leave.status === 'PENDING'
+                                                    ? 'bg-amber-100 text-amber-800'
+                                                    : 'bg-red-100 text-red-800'
+                                            }`}>
                                                 {leave.status}
                                             </span>
                                             {leave.managerNote && (
