@@ -16,12 +16,24 @@ type LeaveRequest = {
     employee: { fullName: string; icNo?: string | null };
 };
 
+type PaginationData = {
+    page: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+};
+
 export default function LeaveView() {
     const { data: session } = useSession();
     const { getCache, setCache } = useDashboardCache();
     const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const [refresh, setRefresh] = useState(0);
+    const [pagination, setPagination] = useState<PaginationData | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [statusFilter, setStatusFilter] = useState<string>('');
 
     // Form states
     const [startDate, setStartDate] = useState('');
@@ -29,7 +41,7 @@ export default function LeaveView() {
     const [reason, setReason] = useState('');
     const [leaveType, setLeaveType] = useState('ANNUAL');
 
-    const cacheKey = `leaves_list_${session?.user?.id || 'anon'}`;
+    const cacheKey = `leaves_list_${session?.user?.id || 'anon'}_${currentPage}_${statusFilter}`;
 
     useEffect(() => {
         const fetchLeaves = async () => {
@@ -37,17 +49,25 @@ export default function LeaveView() {
             if (refresh === 0) {
                 const cachedLeaves = getCache(cacheKey);
                 if (cachedLeaves) {
-                    setLeaves(cachedLeaves);
+                    setLeaves(cachedLeaves.leaves || []);
+                    setPagination(cachedLeaves.pagination || null);
                     setLoading(false);
                     return;
                 }
             }
 
             try {
-                const res = await fetch(apiUrl('/api/leave'));
+                const params = new URLSearchParams({
+                    page: currentPage.toString(),
+                    limit: '20'
+                });
+                if (statusFilter) params.append('status', statusFilter);
+
+                const res = await fetch(`${apiUrl('/api/leave')}?${params}`);
                 if (res.ok) {
                     const data = await res.json();
-                    setLeaves(data);
+                    setLeaves(data.leaves || []);
+                    setPagination(data.pagination || null);
                     setCache(cacheKey, data);
                 }
             } catch (error) {
@@ -58,7 +78,7 @@ export default function LeaveView() {
         };
 
         fetchLeaves();
-    }, [refresh, cacheKey]);
+    }, [refresh, cacheKey, currentPage, statusFilter]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -340,7 +360,117 @@ export default function LeaveView() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination and Filters */}
+                {pagination && (
+                    <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="text-sm text-slate-600">
+                                Showing {leaves.length > 0 ? ((pagination.page - 1) * pagination.limit) + 1 : 0} to {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of {pagination.totalCount} requests
+                            </div>
+                            {isAdmin && (
+                                <select
+                                    value={statusFilter}
+                                    onChange={(e) => {
+                                        setStatusFilter(e.target.value);
+                                        setCurrentPage(1); // Reset to first page when filter changes
+                                    }}
+                                    className="text-sm border border-slate-200 rounded-lg px-3 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                                >
+                                    <option value="">All Status</option>
+                                    <option value="PENDING">Pending</option>
+                                    <option value="APPROVED">Approved</option>
+                                    <option value="REJECTED">Rejected</option>
+                                </select>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                disabled={!pagination.hasPrev}
+                                className="px-3 py-1 text-sm border border-slate-200 rounded-lg bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Previous
+                            </button>
+                            <span className="text-sm text-slate-600">
+                                Page {pagination.page} of {pagination.totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                disabled={!pagination.hasNext}
+                                className="px-3 py-1 text-sm border border-slate-200 rounded-lg bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
+            )}
+
+            {/* Leave History for Non-Admins */}
+            {!isAdmin && leaves.length > 0 && (
+                <div className="bg-white border border-slate-100 rounded-lg shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+                        <h3 className="text-lg font-semibold text-slate-900">Your Leave History</h3>
+                    </div>
+                    <div className="divide-y divide-slate-100">
+                        {leaves.map((leave) => (
+                            <div key={leave.id} className="p-6 hover:bg-slate-50/50 transition-colors">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full border 
+                                                ${leave.status === 'APPROVED' ? 'bg-green-50 text-green-700 border-green-200' :
+                                                    leave.status === 'REJECTED' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200'
+                                                }`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${leave.status === 'APPROVED' ? 'bg-green-500' :
+                                                    leave.status === 'REJECTED' ? 'bg-red-500' : 'bg-amber-500'
+                                                    }`}></span>
+                                                {leave.status}
+                                            </span>
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                                {leave.type}
+                                            </span>
+                                        </div>
+                                        <div className="text-sm text-slate-600 mb-2">
+                                            {new Date(leave.startDate).toLocaleDateString()} - {new Date(leave.endDate).toLocaleDateString()}
+                                        </div>
+                                        <p className="text-sm text-slate-700">{leave.reason}</p>
+                                        {leave.managerNote && (
+                                            <p className="text-sm text-slate-500 italic mt-2">Note: {leave.managerNote}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Pagination for Non-Admins */}
+                    {pagination && pagination.totalPages > 1 && (
+                        <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                            <div className="text-sm text-slate-600">
+                                Page {pagination.page} of {pagination.totalPages}
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                    disabled={!pagination.hasPrev}
+                                    className="px-3 py-1 text-sm border border-slate-200 rounded-lg bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    onClick={() => setCurrentPage(prev => prev + 1)}
+                                    disabled={!pagination.hasNext}
+                                    className="px-3 py-1 text-sm border border-slate-200 rounded-lg bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             )}
         </div>
     );

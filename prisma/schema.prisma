@@ -84,6 +84,7 @@ model LeaveRequest {
 
   @@index([status]) // Index for analytics queries
   @@index([createdAt]) // Index for recent activity queries
+  @@index([employeeId]) // Index for faster employee-specific queries
 }
 
 model Salary {

@@ -12,8 +12,11 @@ export async function GET(req: Request) {
 
         const { searchParams } = new URL(req.url);
         const employeeIdParam = searchParams.get('employeeId');
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '20'); // Default 20 per page
+        const statusFilter = searchParams.get('status'); // Optional status filter
 
-        let whereClause = {};
+        let whereClause: any = {};
         
         if (session.user.role !== 'ADMIN') {
             // Non-admin users can only access their own leaves
@@ -29,17 +32,38 @@ export async function GET(req: Request) {
             whereClause = { employeeId: employeeIdParam };
         }
 
-        const leaves = await prisma.leaveRequest.findMany({
-            where: whereClause,
-            include: {
-                employee: {
-                    select: { fullName: true, icNo: true }
-                }
-            },
-            orderBy: { createdAt: 'desc' }
-        });
+        if (statusFilter) {
+            whereClause.status = statusFilter;
+        }
 
-        return NextResponse.json(leaves);
+        const skip = (page - 1) * limit;
+
+        const [leaves, totalCount] = await Promise.all([
+            prisma.leaveRequest.findMany({
+                where: whereClause,
+                include: {
+                    employee: {
+                        select: { fullName: true, icNo: true }
+                    }
+                },
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: limit
+            }),
+            prisma.leaveRequest.count({ where: whereClause })
+        ]);
+
+        return NextResponse.json({
+            leaves,
+            pagination: {
+                page,
+                limit,
+                totalCount,
+                totalPages: Math.ceil(totalCount / limit),
+                hasNext: page * limit < totalCount,
+                hasPrev: page > 1
+            }
+        });
     } catch (error) {
         return NextResponse.json({ message: "Error fetching leave requests" }, { status: 500 });
     }
