@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useDashboardCache } from '@/lib/DashboardCacheContext';
 import { apiUrl } from '@/lib/api';
@@ -13,6 +13,7 @@ type LeaveRequest = {
     status: string;
     type: string;
     managerNote?: string;
+    managerSignature?: string;
     employee: { fullName: string; icNo?: string | null };
 };
 
@@ -34,6 +35,13 @@ export default function LeaveView() {
     const [pagination, setPagination] = useState<PaginationData | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [statusFilter, setStatusFilter] = useState<string>('');
+
+    const [showSignatureModal, setShowSignatureModal] = useState(false);
+    const [selectedLeaveForApproval, setSelectedLeaveForApproval] = useState<string | null>(null);
+    const [managerNoteInput, setManagerNoteInput] = useState('Approved');
+    const [signatureDataUrl, setSignatureDataUrl] = useState('');
+    const [isDrawing, setIsDrawing] = useState(false);
+    const signatureCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
     // Form states
     const [startDate, setStartDate] = useState('');
@@ -108,16 +116,23 @@ export default function LeaveView() {
         }
     };
 
-    const handleAction = async (id: string, status: string, note: string) => {
+    const handleAction = async (id: string, status: string, note: string, managerSignature?: string) => {
         try {
+            const payload: any = { status, managerNote: note };
+            if (managerSignature) payload.managerSignature = managerSignature;
+
             const res = await fetch(`/api/leave/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ status, managerNote: note }),
+                body: JSON.stringify(payload),
             });
             if (res.ok) {
                 setRefresh(prev => prev + 1);
+                setShowSignatureModal(false);
+                setSelectedLeaveForApproval(null);
+                setSignatureDataUrl('');
+                setManagerNoteInput('Approved');
             } else {
                 const errorData = await res.json().catch(() => ({}));
                 alert(`Failed to update leave request: ${errorData.message || 'Unknown error'}`);
@@ -125,6 +140,110 @@ export default function LeaveView() {
         } catch (error) {
             console.error('Error updating leave request:', error);
             alert("An error occurred while updating the leave request. Please try again.");
+        }
+    };
+
+    const clearSignature = () => {
+        const canvas = signatureCanvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        setSignatureDataUrl('');
+    };
+
+    const finalizeSignature = () => {
+        const canvas = signatureCanvasRef.current;
+        if (!canvas) return;
+        setSignatureDataUrl(canvas.toDataURL('image/png'));
+    };
+
+    const handleStartApproval = (leaveId: string, leaveNote = 'Approved') => {
+        setSelectedLeaveForApproval(leaveId);
+        setManagerNoteInput(leaveNote);
+        setShowSignatureModal(true);
+        setTimeout(() => clearSignature(), 0); // Clear canvas after modal open
+    };
+
+    const handleSubmitApproval = async () => {
+        if (!selectedLeaveForApproval) return;
+        if (!signatureDataUrl) {
+            alert('Please sign before approving');
+            return;
+        }
+        await handleAction(selectedLeaveForApproval, 'APPROVED', managerNoteInput || 'Approved', signatureDataUrl);
+    };
+
+    const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        const canvas = signatureCanvasRef.current;
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.strokeStyle = '#1f2937';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        setIsDrawing(true);
+    };
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        if (!isDrawing) return;
+        const canvas = signatureCanvasRef.current;
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        ctx.lineTo(x, y);
+        ctx.stroke();
+    };
+
+    const handleMouseUp = () => {
+        if (!isDrawing) return;
+        setIsDrawing(false);
+        finalizeSignature();
+    };
+
+    const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+        e.preventDefault();
+        const canvas = signatureCanvasRef.current;
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        const x = e.touches[0].clientX - rect.left;
+        const y = e.touches[0].clientY - rect.top;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.strokeStyle = '#1f2937';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        setIsDrawing(true);
+    };
+
+    const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+        e.preventDefault();
+        if (!isDrawing) return;
+        const canvas = signatureCanvasRef.current;
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        const x = e.touches[0].clientX - rect.left;
+        const y = e.touches[0].clientY - rect.top;
+        ctx.lineTo(x, y);
+        ctx.stroke();
+    };
+
+    const handleMouseLeave = () => {
+        if (isDrawing) {
+            setIsDrawing(false);
+            finalizeSignature();
         }
     };
 
@@ -155,6 +274,53 @@ export default function LeaveView() {
     const containerMaxWidth = isAdmin ? 'max-w-6xl' : 'max-w-7xl';
 
     return (
+        <>
+            {showSignatureModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+                    <div className="w-full max-w-xl rounded-xl bg-white p-6 shadow-xl">
+                        <h3 className="text-lg font-bold text-slate-900">Admin Signature for Approval</h3>
+                        <p className="text-sm text-slate-500 mb-4">Please sign before confirming approval.</p>
+
+                        <div className="border border-slate-200 rounded-lg overflow-hidden">
+                            <canvas
+                                ref={signatureCanvasRef}
+                                width={600}
+                                height={240}
+                                className="w-full h-60 bg-slate-50 touch-none"
+                                onMouseDown={handleMouseDown}
+                                onMouseMove={handleMouseMove}
+                                onMouseUp={handleMouseUp}
+                                onMouseLeave={handleMouseLeave}
+                                onTouchStart={handleTouchStart}
+                                onTouchMove={handleTouchMove}
+                                onTouchEnd={() => { setIsDrawing(false); finalizeSignature(); }}
+                            />
+                        </div>
+
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            <button type="button" onClick={clearSignature} className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200">Clear</button>
+                            <button type="button" onClick={handleSubmitApproval} className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">Confirm Approval</button>
+                            <button type="button" onClick={() => setShowSignatureModal(false)} className="rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-200">Cancel</button>
+                        </div>
+
+                        {signatureDataUrl && (
+                            <div className="mt-4">
+                                <h4 className="text-sm font-medium text-slate-700">Preview</h4>
+                                <img src={signatureDataUrl} alt="Signature preview" className="mt-2 max-h-32 border border-slate-200" />
+                            </div>
+                        )}
+
+                        <div className="mt-4">
+                            <label className="block text-sm font-medium text-slate-600 mb-1">Manager Note</label>
+                            <textarea
+                                value={managerNoteInput}
+                                onChange={(e) => setManagerNoteInput(e.target.value)}
+                                className="w-full rounded-lg border border-slate-300 p-2 text-sm"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         <div className={`space-y-8 animate-in fade-in duration-500 ${containerMaxWidth} mx-auto pb-10`}>
             {/* Header section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-lg border border-slate-100 shadow-sm">
@@ -327,8 +493,11 @@ export default function LeaveView() {
                                                 {leave.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-4 space-y-1">
                                             <span className="text-sm text-slate-500 italic max-w-[150px] truncate block" title={leave.managerNote || ''}>{leave.managerNote || '-'}</span>
+                                            {leave.managerSignature ? (
+                                                <img src={leave.managerSignature} alt="Signature" className="h-10 w-40 object-contain border border-slate-200" />
+                                            ) : null}
                                         </td>
                                         {isAdmin && (
                                             <td className="px-6 py-4 text-right">
@@ -336,10 +505,7 @@ export default function LeaveView() {
                                                     {leave.status === 'PENDING' && (
                                                         <>
                                                             <button
-                                                                onClick={() => {
-                                                                    const note = prompt("Reason for approval (optional):", "Approved");
-                                                                    if (note !== null) handleAction(leave.id, 'APPROVED', note);
-                                                                }}
+                                                                onClick={() => handleStartApproval(leave.id, leave.managerNote || 'Approved')}
                                                                 className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700 border border-green-200 transition-colors"
                                                                 title="Approve"
                                                             >

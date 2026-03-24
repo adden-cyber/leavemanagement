@@ -16,13 +16,14 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
             return NextResponse.json({ message: "Forbidden: Only admins can update leave request status" }, { status: 403 });
         }
 
-        const { status, managerNote } = await req.json(); // "APPROVED" or "REJECTED"
+        const { status, managerNote, managerSignature } = await req.json(); // "APPROVED" or "REJECTED"
 
         const leaveRequest = await prisma.leaveRequest.update({
             where: { id: id },
             data: {
                 status,
-                managerNote
+                managerNote,
+                managerSignature: managerSignature || null,
             }
         });
 

@@ -79,6 +79,7 @@ model LeaveRequest {
   reason      String
   status      String   @default("PENDING") // "PENDING", "APPROVED", "REJECTED"
   managerNote String?  // Reason for approval/rejection
+  managerSignature String? // Base64 data URL for admin signature
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
