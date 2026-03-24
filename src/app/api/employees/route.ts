@@ -31,7 +31,11 @@ export async function GET(request: Request) {
         response.headers.set('Cache-Control', 'private, max-age=300');
         return response;
     } catch (error) {
-        return NextResponse.json({ message: "Error fetching employees" }, { status: 500 });
+        console.error('Error fetching employees:', error);
+        return NextResponse.json(
+            { message: "Error fetching employees", error: (error as any)?.message || "unknown" },
+            { status: 500 }
+        );
     }
 }
 

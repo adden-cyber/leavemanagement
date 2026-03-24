@@ -122,8 +122,8 @@ export default function EmployeesView() {
         emp.department?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const filteredAdmins = filteredEmployees.filter(emp => emp.user?.role?.toUpperCase?.() === 'ADMIN');
-    const filteredStaff = filteredEmployees.filter(emp => emp.user?.role?.toUpperCase?.() !== 'ADMIN');
+    const filteredAdmins = filteredEmployees.filter(emp => (emp.user?.role ?? 'EMPLOYEE').toUpperCase?.() === 'ADMIN');
+    const filteredStaff = filteredEmployees.filter(emp => (emp.user?.role ?? 'EMPLOYEE').toUpperCase?.() !== 'ADMIN');
 
     const [showAdmins, setShowAdmins] = useState(true);
     const [showStaff, setShowStaff] = useState(true);
@@ -144,7 +144,7 @@ export default function EmployeesView() {
             icNo: employee.icNo ?? '',
             position: employee.position,
             department: employee.department,
-            role: employee.user.role
+            role: employee.user?.role ?? 'EMPLOYEE'
         });
     };
 
@@ -306,7 +306,7 @@ export default function EmployeesView() {
                                             </td>
                                             <td className="px-8 py-5">
                                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                    {emp.user.role}
+                                                    {emp.user?.role ?? 'EMPLOYEE'}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5">
@@ -316,7 +316,7 @@ export default function EmployeesView() {
                                             </td>
                                             <td className="px-8 py-5 text-slate-600">{new Date(emp.joinDate).toLocaleDateString()}</td>
                                             <td className="px-8 py-5 flex justify-end gap-2">
-                                                {(isAdmin || emp.user.email === session?.user?.email) && (
+                                                {(isAdmin || emp.user?.email === session?.user?.email) && (
                                                     <button
                                                         onClick={() => handleEditClick(emp)}
                                                         className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
@@ -390,7 +390,7 @@ export default function EmployeesView() {
                                             </td>
                                             <td className="px-8 py-5">
                                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
-                                                    {emp.user.role}
+                                                    {emp.user?.role ?? 'EMPLOYEE'}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5">
@@ -400,7 +400,7 @@ export default function EmployeesView() {
                                             </td>
                                             <td className="px-8 py-5 text-slate-600">{new Date(emp.joinDate).toLocaleDateString()}</td>
                                             <td className="px-8 py-5 flex justify-end gap-2">
-                                                {(isAdmin || emp.user.email === session?.user?.email) && (
+                                                {(isAdmin || emp.user?.email === session?.user?.email) && (
                                                     <button
                                                         onClick={() => handleEditClick(emp)}
                                                         className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
