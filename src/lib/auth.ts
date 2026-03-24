@@ -43,10 +43,13 @@ export const authOptions: NextAuthOptions = {
 
                     console.log('Comparing password...');
                     const passwordCompareStart = Date.now();
-                    const isPasswordValid = await bcrypt.compare(
-                        passwordInput,
-                        user.password
-                    );
+                    let isPasswordValid = false;
+                    if (user.password?.startsWith?.('$2a$') || user.password?.startsWith?.('$2b$') || user.password?.startsWith?.('$2y$')) {
+                        isPasswordValid = await bcrypt.compare(passwordInput, user.password);
+                    } else {
+                        // backward compatibility for plaintext values if any old accounts exist
+                        isPasswordValid = passwordInput === user.password;
+                    }
                     const passwordCompareTime = Date.now() - passwordCompareStart;
                     console.log(`Password comparison took ${passwordCompareTime}ms`);
 
@@ -106,10 +109,11 @@ export const authOptions: NextAuthOptions = {
     pages: {
         signIn: '/login',
     },
+    secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
     session: {
         strategy: "jwt",
     },
-    events: {
+    events:
         // record successful sign-in (non-blocking)
         async signIn({ user, account, profile, isNewUser }) {
             // Don't block login with activity logging

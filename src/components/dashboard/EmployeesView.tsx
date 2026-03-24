@@ -29,7 +29,7 @@ interface LeaveRequest {
 }
 
 export default function EmployeesView() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const isAdmin = session?.user?.role === 'ADMIN';
     const { getCache, setCache, clearCache } = useDashboardCache();
 
@@ -43,8 +43,13 @@ export default function EmployeesView() {
     const [leavesLoading, setLeavesLoading] = useState(false);
 
     useEffect(() => {
-        fetchEmployees();
-    }, []);
+        if (status === 'authenticated') {
+            fetchEmployees();
+        } else if (status === 'unauthenticated') {
+            setLoading(false);
+            setError('Please sign in to load employee data.');
+        }
+    }, [status]);
 
     const fetchEmployees = async (forceRefresh = false) => {
         setError(null);
@@ -64,7 +69,10 @@ export default function EmployeesView() {
         const timeoutId = window.setTimeout(() => controller.abort(), 60000);
 
         try {
-            const res = await fetch(apiUrl('/api/employees'), { signal: controller.signal });
+            const res = await fetch(apiUrl('/api/employees'), {
+                signal: controller.signal,
+                credentials: 'include',
+            });
             if (res.ok) {
                 const data = await res.json();
                 console.log('Fetched employees data:', data);

@@ -38,8 +38,12 @@ export async function POST(req: Request) {
     } catch (error) {
         console.error("Reset password error:", error);
         return NextResponse.json(
-            { message: "Internal server error" },
+            { message: "Internal server error", detail: (error as any)?.message || "unknown" },
             { status: 500 }
         );
     }
+}
+
+export async function GET() {
+    return NextResponse.json({ message: 'Use POST to reset password' }, { status: 405 });
 }
