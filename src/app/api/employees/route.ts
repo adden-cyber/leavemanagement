@@ -27,7 +27,9 @@ export async function GET() {
             }
         });
 
-        return NextResponse.json(employees);
+        const response = NextResponse.json(employees);
+        response.headers.set('Cache-Control', 'private, max-age=300');
+        return response;
     } catch (error) {
         return NextResponse.json({ message: "Error fetching employees" }, { status: 500 });
     }

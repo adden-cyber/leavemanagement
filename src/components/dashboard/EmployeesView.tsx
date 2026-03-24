@@ -61,7 +61,7 @@ export default function EmployeesView() {
         }
 
         const controller = new AbortController();
-        const timeoutId = window.setTimeout(() => controller.abort(), 10000);
+        const timeoutId = window.setTimeout(() => controller.abort(), 60000);
 
         try {
             const res = await fetch(apiUrl('/api/employees'), { signal: controller.signal });
