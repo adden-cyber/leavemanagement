@@ -113,7 +113,7 @@ export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
     },
-    events:
+    events: {
         // record successful sign-in (non-blocking)
         async signIn({ user, account, profile, isNewUser }) {
             // Don't block login with activity logging
