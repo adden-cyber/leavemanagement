@@ -1,7 +1,8 @@
 -- CreateTable
 CREATE TABLE "User" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "email" TEXT NOT NULL,
+    "name" TEXT,
     "password" TEXT NOT NULL,
     "role" TEXT NOT NULL DEFAULT 'EMPLOYEE',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -10,7 +11,7 @@ CREATE TABLE "User" (
 
 -- CreateTable
 CREATE TABLE "Employee" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT NOT NULL,
     "fullName" TEXT NOT NULL,
     "icNo" TEXT,
@@ -23,12 +24,12 @@ CREATE TABLE "Employee" (
     "workingStatus" TEXT NOT NULL DEFAULT 'Active',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Employee_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "Employee_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Attendance" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "employeeId" TEXT NOT NULL,
     "date" DATETIME NOT NULL,
     "checkIn" DATETIME NOT NULL,
@@ -36,12 +37,12 @@ CREATE TABLE "Attendance" (
     "status" TEXT NOT NULL DEFAULT 'PRESENT',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Attendance_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "Attendance_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "LeaveRequest" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "employeeId" TEXT NOT NULL,
     "startDate" DATETIME NOT NULL,
     "endDate" DATETIME NOT NULL,
@@ -51,23 +52,23 @@ CREATE TABLE "LeaveRequest" (
     "managerNote" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "LeaveRequest_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "LeaveRequest_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Salary" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "employeeId" TEXT NOT NULL,
     "baseSalary" REAL NOT NULL,
     "allowance" REAL NOT NULL DEFAULT 0,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Salary_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "Salary_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Payroll" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "employeeId" TEXT NOT NULL,
     "month" INTEGER NOT NULL,
     "year" INTEGER NOT NULL,
@@ -79,12 +80,12 @@ CREATE TABLE "Payroll" (
     "paymentDate" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Payroll_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "Payroll_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "ExpenseClaim" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "employeeId" TEXT NOT NULL,
     "date" DATETIME NOT NULL,
     "type" TEXT NOT NULL,
@@ -95,12 +96,12 @@ CREATE TABLE "ExpenseClaim" (
     "managerNote" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "ExpenseClaim_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "ExpenseClaim_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "JobPosting" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "department" TEXT NOT NULL,
     "location" TEXT NOT NULL DEFAULT 'Remote',
@@ -113,7 +114,7 @@ CREATE TABLE "JobPosting" (
 
 -- CreateTable
 CREATE TABLE "Applicant" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "jobPostingId" TEXT NOT NULL,
     "firstName" TEXT NOT NULL,
     "lastName" TEXT NOT NULL,
@@ -124,35 +125,38 @@ CREATE TABLE "Applicant" (
     "notes" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Applicant_jobPostingId_fkey" FOREIGN KEY ("jobPostingId") REFERENCES "JobPosting" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "Applicant_jobPostingId_fkey" FOREIGN KEY ("jobPostingId") REFERENCES "JobPosting" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Goal" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'NOT_STARTED',
     "dueDate" DATETIME NOT NULL,
+    "rating" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
 
 -- CreateTable
 CREATE TABLE "GoalAssignment" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "goalId" TEXT NOT NULL,
     "employeeId" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'NOT_STARTED',
+    "startedAt" DATETIME,
+    "completedAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "GoalAssignment_goalId_fkey" FOREIGN KEY ("goalId") REFERENCES "Goal" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "GoalAssignment_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "GoalAssignment_goalId_fkey" FOREIGN KEY ("goalId") REFERENCES "Goal" ("_id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "GoalAssignment_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Appraisal" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "employeeId" TEXT NOT NULL,
     "period" TEXT NOT NULL,
     "rating" INTEGER,
@@ -161,12 +165,12 @@ CREATE TABLE "Appraisal" (
     "status" TEXT NOT NULL DEFAULT 'DRAFT',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Appraisal_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "Appraisal_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "OnboardingTask" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "employeeId" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
@@ -176,12 +180,12 @@ CREATE TABLE "OnboardingTask" (
     "completedAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "OnboardingTask_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "OnboardingTask_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Course" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "provider" TEXT,
@@ -193,7 +197,7 @@ CREATE TABLE "Course" (
 
 -- CreateTable
 CREATE TABLE "EmployeeCourse" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "employeeId" TEXT NOT NULL,
     "courseId" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'ENROLLED',
@@ -201,13 +205,13 @@ CREATE TABLE "EmployeeCourse" (
     "completedAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "EmployeeCourse_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "EmployeeCourse_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "EmployeeCourse_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("_id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "EmployeeCourse_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Asset" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "employeeId" TEXT,
     "name" TEXT NOT NULL,
     "category" TEXT NOT NULL,
@@ -217,23 +221,34 @@ CREATE TABLE "Asset" (
     "returnedAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Asset_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT "Asset_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("_id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Announcement" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "authorId" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'PUBLISHED',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Announcement_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Activity" (
+    "_id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT,
+    "userName" TEXT NOT NULL,
+    "action" TEXT NOT NULL,
+    "metadata" JSONB,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- CreateTable
 CREATE TABLE "Survey" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "description" TEXT,
     "status" TEXT NOT NULL DEFAULT 'OPEN',
@@ -244,31 +259,31 @@ CREATE TABLE "Survey" (
 
 -- CreateTable
 CREATE TABLE "SurveyQuestion" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "surveyId" TEXT NOT NULL,
     "questionText" TEXT NOT NULL,
     "type" TEXT NOT NULL DEFAULT 'TEXT',
     "options" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "SurveyQuestion_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "Survey" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "SurveyQuestion_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "Survey" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "SurveyResponse" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "questionId" TEXT NOT NULL,
     "employeeId" TEXT NOT NULL,
     "answerText" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "SurveyResponse_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestion" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "SurveyResponse_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "SurveyResponse_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestion" ("_id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "SurveyResponse_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Benefit" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "_id" TEXT NOT NULL PRIMARY KEY,
     "employeeId" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "provider" TEXT,
@@ -279,7 +294,7 @@ CREATE TABLE "Benefit" (
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Benefit_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "Benefit_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee" ("_id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -289,13 +304,43 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "Employee_userId_key" ON "Employee"("userId");
 
 -- CreateIndex
+CREATE INDEX "Employee_joinDate_idx" ON "Employee"("joinDate");
+
+-- CreateIndex
+CREATE INDEX "Employee_createdAt_idx" ON "Employee"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "Attendance_date_status_idx" ON "Attendance"("date", "status");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Attendance_employeeId_date_key" ON "Attendance"("employeeId", "date");
+
+-- CreateIndex
+CREATE INDEX "LeaveRequest_status_idx" ON "LeaveRequest"("status");
+
+-- CreateIndex
+CREATE INDEX "LeaveRequest_createdAt_idx" ON "LeaveRequest"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "LeaveRequest_employeeId_idx" ON "LeaveRequest"("employeeId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Salary_employeeId_key" ON "Salary"("employeeId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Payroll_employeeId_month_year_key" ON "Payroll"("employeeId", "month", "year");
+
+-- CreateIndex
+CREATE INDEX "ExpenseClaim_status_idx" ON "ExpenseClaim"("status");
+
+-- CreateIndex
+CREATE INDEX "ExpenseClaim_createdAt_idx" ON "ExpenseClaim"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "JobPosting_status_idx" ON "JobPosting"("status");
+
+-- CreateIndex
+CREATE INDEX "JobPosting_createdAt_idx" ON "JobPosting"("createdAt");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "GoalAssignment_goalId_employeeId_key" ON "GoalAssignment"("goalId", "employeeId");
