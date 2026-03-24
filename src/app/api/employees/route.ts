@@ -3,11 +3,22 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "https://leavemanagement-21nd.onrender.com",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Credentials": "true",
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { status: 204, headers: CORS_HEADERS });
+}
+
 export async function GET(request: Request) {
     try {
         const session = await getServerSession(authOptions);
         if (!session) {
-            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401, headers: CORS_HEADERS });
         }
 
         const employees = await prisma.employee.findMany({
@@ -27,14 +38,14 @@ export async function GET(request: Request) {
             }
         });
 
-        const response = NextResponse.json(employees);
+        const response = NextResponse.json(employees, { headers: CORS_HEADERS });
         response.headers.set('Cache-Control', 'private, max-age=300');
         return response;
     } catch (error) {
         console.error('Error fetching employees:', error);
         return NextResponse.json(
             { message: "Error fetching employees", error: (error as any)?.message || "unknown" },
-            { status: 500 }
+            { status: 500, headers: CORS_HEADERS }
         );
     }
 }
@@ -100,9 +111,9 @@ export async function POST(req: Request) {
             return employee;
         });
 
-        return NextResponse.json(result, { status: 201 });
+        return NextResponse.json(result, { status: 201, headers: CORS_HEADERS });
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ message: "Error creating employee" }, { status: 500 });
+        return NextResponse.json({ message: "Error creating employee" }, { status: 500, headers: CORS_HEADERS });
     }
 }
