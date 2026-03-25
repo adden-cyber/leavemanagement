@@ -28,7 +28,7 @@ type PaginationData = {
 
 export default function LeaveView() {
     const { data: session } = useSession();
-    const { getCache, setCache } = useDashboardCache();
+    const { getCache, setCache, clearCache } = useDashboardCache();
     const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const [refresh, setRefresh] = useState(0);
