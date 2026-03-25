@@ -27,10 +27,13 @@ export default function EmployeesPage() {
 
     const fetchEmployees = async () => {
         try {
-            const res = await fetch(apiUrl('/api/employees'));
+            const res = await fetch('/api/employees', { credentials: 'include' });
             if (res.ok) {
                 const data = await res.json();
                 setEmployees(data);
+            } else {
+                const errText = await res.text();
+                console.error('Failed to fetch employees', res.status, res.statusText, errText);
             }
         } catch (error) {
             console.error('Failed to fetch employees', error);

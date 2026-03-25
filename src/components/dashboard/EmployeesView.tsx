@@ -69,7 +69,7 @@ export default function EmployeesView() {
         const timeoutId = window.setTimeout(() => controller.abort(), 60000);
 
         try {
-            const res = await fetch(apiUrl('/api/employees'), {
+            const res = await fetch('/api/employees', {
                 signal: controller.signal,
                 credentials: 'include',
             });

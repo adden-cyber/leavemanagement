@@ -3,22 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "https://leavemanagement-21nd.onrender.com",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Access-Control-Allow-Credentials": "true",
-};
-
-export async function OPTIONS() {
-  return NextResponse.json({}, { status: 204, headers: CORS_HEADERS });
-}
-
-export async function GET(request: Request) {
+export async function GET() {
     try {
         const session = await getServerSession(authOptions);
         if (!session) {
-            return NextResponse.json({ message: "Unauthorized" }, { status: 401, headers: CORS_HEADERS });
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
         const employees = await prisma.employee.findMany({
@@ -38,14 +27,14 @@ export async function GET(request: Request) {
             }
         });
 
-        const response = NextResponse.json(employees, { headers: CORS_HEADERS });
+        const response = NextResponse.json(employees);
         response.headers.set('Cache-Control', 'private, max-age=300');
         return response;
     } catch (error) {
         console.error('Error fetching employees:', error);
         return NextResponse.json(
             { message: "Error fetching employees", error: (error as any)?.message || "unknown" },
-            { status: 500, headers: CORS_HEADERS }
+            { status: 500 }
         );
     }
 }
@@ -60,9 +49,6 @@ export async function POST(req: Request) {
 
         const { fullName, email, position, department, joinDate } = await req.json();
 
-        // Create user first (as employee needs userId)
-        // For simplicity, we create a user with default password 'password123'
-        // In a real app, we'd send an invite email
         const bcrypt = require('bcryptjs');
         const hashedPassword = await bcrypt.hash('password123', 10);
 
@@ -85,7 +71,6 @@ export async function POST(req: Request) {
                 }
             });
 
-            // Automatically Generate Onboarding Tasks
             const oneWeekLater = new Date();
             oneWeekLater.setDate(oneWeekLater.getDate() + 7);
 
@@ -111,9 +96,9 @@ export async function POST(req: Request) {
             return employee;
         });
 
-        return NextResponse.json(result, { status: 201, headers: CORS_HEADERS });
+        return NextResponse.json(result, { status: 201 });
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ message: "Error creating employee" }, { status: 500, headers: CORS_HEADERS });
+        return NextResponse.json({ message: "Error creating employee" }, { status: 500 });
     }
 }
