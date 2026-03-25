@@ -12,6 +12,7 @@ type LeaveRequest = {
     status: string;
     type: string;
     managerNote?: string;
+    managerSignature?: string;
     employee: { fullName: string };
 };
 
@@ -123,6 +124,17 @@ export default function LeaveHistoryView() {
                                     <div className="mt-3 text-sm text-slate-600">
                                         {leave.reason}
                                     </div>
+
+                                    {leave.status === 'APPROVED' && leave.managerSignature && (
+                                        <div className="mt-4 pt-4 border-t border-slate-100">
+                                            <p className="text-xs font-medium text-slate-600 mb-2">Approved by:</p>
+                                            <img
+                                                src={leave.managerSignature}
+                                                alt="Manager Signature"
+                                                className="h-12 border border-slate-200 rounded"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
