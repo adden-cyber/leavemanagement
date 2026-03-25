@@ -27,8 +27,10 @@ export default function ProfileSettingsView() {
 
     // Modal state
     const [showModal, setShowModal] = useState(false);
-    const [modalField, setModalField] = useState<'ic' | 'bio' | null>(null);
-    const [modalValue, setModalValue] = useState('');
+    const [formData, setFormData] = useState({
+        icNo: '',
+        bio: ''
+    });
 
     // Image refs
     const profileInputRef = useRef<HTMLInputElement>(null);
@@ -43,7 +45,12 @@ export default function ProfileSettingsView() {
             const res = await fetch('/api/profile');
             if (res.ok) {
                 const data = await res.json();
+                console.log('Fetched profile:', data);
                 setProfile(data);
+                setFormData({
+                    icNo: data.icNo || '',
+                    bio: data.bio || ''
+                });
             }
         } catch (error) {
             console.error('Failed to fetch profile', error);
@@ -52,48 +59,51 @@ export default function ProfileSettingsView() {
         }
     };
 
-    const openModal = (field: 'ic' | 'bio') => {
-        setModalField(field);
-        setModalValue(field === 'ic' ? (profile?.icNo || '') : (profile?.bio || ''));
+    const openModal = () => {
+        setFormData({
+            icNo: profile?.icNo || '',
+            bio: profile?.bio || ''
+        });
         setSaveError(null);
         setShowModal(true);
     };
 
     const closeModal = () => {
         setShowModal(false);
-        setModalField(null);
-        setModalValue('');
         setSaveError(null);
     };
 
-    const handleModalSave = async () => {
-        if (!modalField) return;
-
+    const handleSaveChanges = async () => {
         setIsSaving(true);
         setSaveError(null);
         try {
-            const payload = modalField === 'ic' ? { icNo: modalValue } : { bio: modalValue };
+            console.log('Saving with data:', formData);
             
             const res = await fetch('/api/profile', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
+                body: JSON.stringify({
+                    icNo: formData.icNo,
+                    bio: formData.bio
+                }),
             });
 
+            console.log('Response status:', res.status);
+            const responseData = await res.json();
+            console.log('Response data:', responseData);
+
             if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
-                setSaveError(errorData.error || 'Failed to save changes');
+                setSaveError(responseData.error || 'Failed to save changes');
                 return;
             }
 
-            const data = await res.json();
-            // Update profile with the response from the API
-            if (data.employee) {
-                setProfile(prev => prev ? { ...prev, ...data.employee } : null);
-            } else {
-                // Fallback: update with the modal value
-                setProfile(prev => prev ? { ...prev, [modalField === 'ic' ? 'icNo' : 'bio']: modalValue } : null);
+            // Update profile with the response
+            if (responseData.employee) {
+                const updatedProfile = { ...profile, ...responseData.employee } as EmployeeProfile;
+                console.log('Updated profile:', updatedProfile);
+                setProfile(updatedProfile);
             }
+            
             closeModal();
         } catch (error) {
             console.error('Error saving:', error);
@@ -153,197 +163,163 @@ export default function ProfileSettingsView() {
 
     return (
         <div className="max-w-5xl mx-auto pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Header / Banner Section */}
-            <div className="relative h-32 md:h-40 rounded-b-3xl overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg group">
-                {profile.bannerImage ? (
-                    <img src={profile.bannerImage} alt="Profile Banner" className="w-full h-full object-cover" />
-                ) : (
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 MixBlendMode-overlay"></div>
-                )}
-
-                {/* Banner Edit Button */}
+            {/* Simple Header with Edit Button */}
+            <div className="flex items-center justify-between gap-4 bg-white p-6 rounded-lg border border-slate-100 shadow-sm">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-purple-100 rounded-xl">
+                        <svg className="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" /></svg>
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Profile</h2>
+                        <p className="text-sm text-slate-500 mt-1">Manage your app preferences and account settings.</p>
+                    </div>
+                </div>
                 <button
-                    onClick={() => bannerInputRef.current?.click()}
-                    className="absolute top-4 right-4 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white px-4 py-2 rounded-lg text-sm font-medium transition-all opacity-0 group-hover:opacity-100 flex items-center gap-2"
+                    onClick={openModal}
+                    className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all hover:scale-105 flex items-center gap-2"
                 >
-                    <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" /></svg>
-                    Change Cover
+                    <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13L2.25 21.25l1.59-2.29a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
+                    Edit
                 </button>
-                <input
-                    type="file"
-                    ref={bannerInputRef}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, 'banner')}
-                />
-            </div>
-
-            <div className="px-8 sm:px-12 -mt-16 md:-mt-20 relative z-10 flex flex-col md:flex-row gap-6 md:gap-8 items-start md:items-end mb-8">
-                {/* Profile Picture */}
-                <div className="relative group">
-                    <div className="w-32 h-32 md:w-36 md:h-36 rounded-full border-4 border-white shadow-xl bg-white overflow-hidden flex items-center justify-center text-4xl font-bold text-gray-400 shrink-0">
-                        {profile.profileImage ? (
-                            <img src={profile.profileImage} alt="Profile" className="w-full h-full object-cover" />
-                        ) : (
-                            <div className="w-full h-full bg-blue-100 text-blue-600 flex items-center justify-center">
-                                {initials}
-                            </div>
-                        )}
-                    </div>
-
-                    <button
-                        onClick={() => profileInputRef.current?.click()}
-                        className="absolute bottom-2 right-2 p-3 bg-white text-gray-700 hover:text-[#2563eb] rounded-full shadow-lg border border-gray-100 transition-transform hover:scale-105"
-                    >
-                        <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" /></svg>
-                    </button>
-                    <input
-                        type="file"
-                        ref={profileInputRef}
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload(e, 'profile')}
-                    />
-                </div>
-
-                <div className="flex-1 pb-2">
-                    <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">{profile.fullName}</h1>
-                    <div className="flex items-center gap-4 mt-2">
-                        <p className="text-xl text-gray-500 font-medium">{profile.position}</p>
-                        <span className="px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded-full border border-green-200 shadow-sm">
-                            {profile.workingStatus}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="px-6 sm:px-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column: Details */}
-                <div className="lg:col-span-1 space-y-6">
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-                        <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                            <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-blue-500"><path strokeLinecap="round" strokeLinejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0Z" /></svg>
-                            Personal Information
-                        </h3>
-
-                        <div className="space-y-5">
-                            <div>
-                                <p className="text-sm font-medium text-gray-500">Email Address</p>
-                                <p className="text-base text-gray-900 font-medium mt-1 truncate">{profile.email}</p>
-                            </div>
-
-                            <div>
-                                <p className="text-sm font-medium text-gray-500">Department</p>
-                                <p className="text-base text-gray-900 font-medium mt-1">{profile.department}</p>
-                            </div>
-
-                            <div>
-                                <div className="flex items-center justify-between">
-                                    <p className="text-sm font-medium text-gray-500">IC Number</p>
-                                    <button
-                                        onClick={() => openModal('ic')}
-                                        className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
-                                    >
-                                        <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13L2.25 21.25l1.59-2.29a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
-                                        Edit
-                                    </button>
-                                </div>
-                                <p className="text-base text-gray-900 font-medium mt-1">{profile.icNo || 'Not set'}</p>
-                            </div>
-
-                            <div>
-                                <p className="text-sm font-medium text-gray-500">Date Joined</p>
-                                <p className="text-base text-gray-900 font-medium mt-1">
-                                    {new Date(profile.joinDate).toLocaleDateString('en-MY', {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric'
-                                    })}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Right Column: Bio */}
-                <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 min-h-[300px] flex flex-col">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-blue-500"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" /></svg>
-                                About Me</h3>
-                            <button
-                                onClick={() => openModal('bio')}
-                                className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
-                            >
-                                <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13L2.25 21.25l1.59-2.29a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
-                                Edit
-                            </button>
-                        </div>
-
-                        <div className="flex-1 text-gray-600 leading-relaxed whitespace-pre-wrap animate-in fade-in duration-200">
-                            {profile.bio ? (
-                                profile.bio
-                            ) : (
-                                <p className="text-gray-400 italic">No bio provided yet. Add one to let your team know more about you!</p>
-                            )}
-                        </div>
-                    </div>
-                </div>
             </div>
 
             {/* Modal Dialog */}
             {showModal && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-in zoom-in-95 duration-200">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                            {modalField === 'ic' ? 'Edit IC Number' : 'Edit About Me'}
-                        </h2>
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 animate-in zoom-in-95 duration-200">
+                        <h2 className="text-3xl font-bold text-gray-900 mb-8">Edit Profile</h2>
 
+                        {/* Error Message */}
                         {saveError && (
-                            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
                                 <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 <p className="text-sm text-red-700">{saveError}</p>
                             </div>
                         )}
 
-                        {modalField === 'ic' ? (
-                            <input
-                                type="text"
-                                value={modalValue}
-                                onChange={(e) => setModalValue(e.target.value)}
-                                placeholder="e.g., 123456-78-9012"
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-700 mb-6"
-                                autoFocus
-                            />
-                        ) : (
-                            <textarea
-                                value={modalValue}
-                                onChange={(e) => setModalValue(e.target.value)}
-                                placeholder="Write something about yourself..."
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-700 mb-6 resize-none"
-                                rows={5}
-                                autoFocus
-                            />
-                        )}
+                        {/* Form Fields */}
+                        <div className="space-y-6">
+                            {/* Name (Read-only) */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Name</label>
+                                <input
+                                    type="text"
+                                    value={profile?.fullName || ''}
+                                    disabled
+                                    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                                />
+                            </div>
 
-                        <div className="flex gap-3 justify-end">
+                            {/* Email (Read-only) */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                                <input
+                                    type="email"
+                                    value={profile?.email || ''}
+                                    disabled
+                                    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                                />
+                            </div>
+
+                            {/* IC Card Number (Editable) */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">IC Card Number</label>
+                                <input
+                                    type="text"
+                                    value={formData.icNo}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, icNo: e.target.value }))}
+                                    placeholder="e.g., 123456-78-9012"
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-700"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">Your identification number</p>
+                            </div>
+
+                            {/* Role (Read-only) */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+                                <input
+                                    type="text"
+                                    value={profile?.role || ''}
+                                    disabled
+                                    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                                />
+                            </div>
+
+                            {/* Bio (Editable) */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">About Me</label>
+                                <textarea
+                                    value={formData.bio}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+                                    placeholder="Write something about yourself..."
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-700 resize-none"
+                                    rows={4}
+                                />
+                            </div>
+
+                            {/* Department and Position */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Department</label>
+                                    <input
+                                        type="text"
+                                        value={profile?.department || ''}
+                                        disabled
+                                        className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Position</label>
+                                    <input
+                                        type="text"
+                                        value={profile?.position || ''}
+                                        disabled
+                                        className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Status and Join Date */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                                    <input
+                                        type="text"
+                                        value={profile?.workingStatus || ''}
+                                        disabled
+                                        className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Join Date</label>
+                                    <input
+                                        type="text"
+                                        value={profile ? new Date(profile.joinDate).toLocaleDateString('en-MY', { year: 'numeric', month: 'long', day: 'numeric' }) : ''}
+                                        disabled
+                                        className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex gap-3 justify-end mt-8 pt-6 border-t border-gray-200">
                             <button
                                 onClick={closeModal}
                                 disabled={isSaving}
-                                className="px-6 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                                className="px-6 py-2.5 text-sm font-semibold text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
                             >
                                 Cancel
                             </button>
                             <button
-                                onClick={handleModalSave}
+                                onClick={handleSaveChanges}
                                 disabled={isSaving}
-                                className="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors flex items-center gap-2"
+                                className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
                             >
                                 {isSaving && (
                                     <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                 )}
-                                Save
+                                Save Changes
                             </button>
                         </div>
                     </div>
