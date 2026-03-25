@@ -23,12 +23,12 @@ export default function ProfileSettingsView() {
     const [profile, setProfile] = useState<EmployeeProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
 
-    // Edit state
-    const [isEditingBio, setIsEditingBio] = useState(false);
-    const [editBioContent, setEditBioContent] = useState('');
-    const [isEditingIc, setIsEditingIc] = useState(false);
-    const [editIcContent, setEditIcContent] = useState('');
+    // Modal state
+    const [showModal, setShowModal] = useState(false);
+    const [modalField, setModalField] = useState<'ic' | 'bio' | null>(null);
+    const [modalValue, setModalValue] = useState('');
 
     // Image refs
     const profileInputRef = useRef<HTMLInputElement>(null);
@@ -44,8 +44,6 @@ export default function ProfileSettingsView() {
             if (res.ok) {
                 const data = await res.json();
                 setProfile(data);
-                setEditBioContent(data.bio || '');
-                setEditIcContent(data.icNo || '');
             }
         } catch (error) {
             console.error('Failed to fetch profile', error);
@@ -54,41 +52,52 @@ export default function ProfileSettingsView() {
         }
     };
 
-    const handleSaveBio = async () => {
-        setIsSaving(true);
-        try {
-            const res = await fetch('/api/profile', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ bio: editBioContent }),
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setProfile(prev => prev ? { ...prev, bio: editBioContent } : null);
-                setIsEditingBio(false);
-            }
-        } catch (error) {
-            console.error('Failed to save bio:', error);
-        } finally {
-            setIsSaving(false);
-        }
+    const openModal = (field: 'ic' | 'bio') => {
+        setModalField(field);
+        setModalValue(field === 'ic' ? (profile?.icNo || '') : (profile?.bio || ''));
+        setSaveError(null);
+        setShowModal(true);
     };
 
-    const handleSaveIc = async () => {
+    const closeModal = () => {
+        setShowModal(false);
+        setModalField(null);
+        setModalValue('');
+        setSaveError(null);
+    };
+
+    const handleModalSave = async () => {
+        if (!modalField) return;
+
         setIsSaving(true);
+        setSaveError(null);
         try {
+            const payload = modalField === 'ic' ? { icNo: modalValue } : { bio: modalValue };
+            
             const res = await fetch('/api/profile', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ icNo: editIcContent }),
+                body: JSON.stringify(payload),
             });
-            if (res.ok) {
-                const data = await res.json();
-                setProfile(prev => prev ? { ...prev, icNo: editIcContent } : null);
-                setIsEditingIc(false);
+
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                setSaveError(errorData.error || 'Failed to save changes');
+                return;
             }
+
+            const data = await res.json();
+            // Update profile with the response from the API
+            if (data.employee) {
+                setProfile(prev => prev ? { ...prev, ...data.employee } : null);
+            } else {
+                // Fallback: update with the modal value
+                setProfile(prev => prev ? { ...prev, [modalField === 'ic' ? 'icNo' : 'bio']: modalValue } : null);
+            }
+            closeModal();
         } catch (error) {
-            console.error('Failed to save IC number:', error);
+            console.error('Error saving:', error);
+            setSaveError('An error occurred while saving. Please try again.');
         } finally {
             setIsSaving(false);
         }
@@ -231,50 +240,15 @@ export default function ProfileSettingsView() {
                             <div>
                                 <div className="flex items-center justify-between">
                                     <p className="text-sm font-medium text-gray-500">IC Number</p>
-                                    {!isEditingIc && (
-                                        <button
-                                            onClick={() => setIsEditingIc(true)}
-                                            className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
-                                        >
-                                            <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13L2.25 21.25l1.59-2.29a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
-                                            Edit
-                                        </button>
-                                    )}
+                                    <button
+                                        onClick={() => openModal('ic')}
+                                        className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
+                                    >
+                                        <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13L2.25 21.25l1.59-2.29a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
+                                        Edit
+                                    </button>
                                 </div>
-                                {isEditingIc ? (
-                                    <div className="mt-2 animate-in fade-in duration-200">
-                                        <input
-                                            type="text"
-                                            value={editIcContent}
-                                            onChange={(e) => setEditIcContent(e.target.value)}
-                                            placeholder="Enter your IC number"
-                                            className="w-full p-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-700 bg-blue-50/30"
-                                        />
-                                        <div className="flex justify-end gap-2 mt-2">
-                                            <button
-                                                onClick={() => {
-                                                    setIsEditingIc(false);
-                                                    setEditIcContent(profile.icNo || '');
-                                                }}
-                                                className="px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button
-                                                onClick={handleSaveIc}
-                                                disabled={isSaving}
-                                                className="px-3 py-1 bg-[#2563eb] text-white text-xs font-medium rounded shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors flex items-center gap-1"
-                                            >
-                                                {isSaving && (
-                                                    <svg className="animate-spin h-3 w-3 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                                )}
-                                                Save
-                                            </button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <p className="text-base text-gray-900 font-medium mt-1">{profile.icNo || 'Not provided'}</p>
-                                )}
+                                <p className="text-base text-gray-900 font-medium mt-1">{profile.icNo || 'Not set'}</p>
                             </div>
 
                             <div>
@@ -297,62 +271,84 @@ export default function ProfileSettingsView() {
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                 <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-blue-500"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" /></svg>
-                                About Me
-                            </h3>
-                            {!isEditingBio && (
-                                <button
-                                    onClick={() => setIsEditingBio(true)}
-                                    className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
-                                >
-                                    <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13L2.25 21.25l1.59-2.29a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
-                                    Edit Bio
-                                </button>
-                            )}
+                                About Me</h3>
+                            <button
+                                onClick={() => openModal('bio')}
+                                className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+                            >
+                                <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13L2.25 21.25l1.59-2.29a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
+                                Edit
+                            </button>
                         </div>
 
-                        {isEditingBio ? (
-                            <div className="flex-1 flex flex-col pt-2 animate-in fade-in duration-200">
-                                <textarea
-                                    value={editBioContent}
-                                    onChange={(e) => setEditBioContent(e.target.value)}
-                                    placeholder="Write something about yourself..."
-                                    className="w-full flex-1 p-4 border border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none text-gray-700 bg-blue-50/30"
-                                    rows={6}
-                                />
-                                <div className="flex justify-end gap-3 mt-4">
-                                    <button
-                                        onClick={() => {
-                                            setIsEditingBio(false);
-                                            setEditBioContent(profile.bio || '');
-                                        }}
-                                        className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        onClick={handleSaveBio}
-                                        disabled={isSaving}
-                                        className="px-6 py-2 bg-[#2563eb] text-white text-sm font-medium rounded-lg shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors flex items-center gap-2"
-                                    >
-                                        {isSaving && (
-                                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                        )}
-                                        Save Changes
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="flex-1 text-gray-600 leading-relaxed whitespace-pre-wrap animate-in fade-in duration-200">
-                                {profile.bio ? (
-                                    profile.bio
-                                ) : (
-                                    <p className="text-gray-400 italic">No bio provided yet. Add one to let your team know more about you!</p>
-                                )}
-                            </div>
-                        )}
+                        <div className="flex-1 text-gray-600 leading-relaxed whitespace-pre-wrap animate-in fade-in duration-200">
+                            {profile.bio ? (
+                                profile.bio
+                            ) : (
+                                <p className="text-gray-400 italic">No bio provided yet. Add one to let your team know more about you!</p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
+
+            {/* Modal Dialog */}
+            {showModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-in zoom-in-95 duration-200">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                            {modalField === 'ic' ? 'Edit IC Number' : 'Edit About Me'}
+                        </h2>
+
+                        {saveError && (
+                            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                                <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <p className="text-sm text-red-700">{saveError}</p>
+                            </div>
+                        )}
+
+                        {modalField === 'ic' ? (
+                            <input
+                                type="text"
+                                value={modalValue}
+                                onChange={(e) => setModalValue(e.target.value)}
+                                placeholder="e.g., 123456-78-9012"
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-700 mb-6"
+                                autoFocus
+                            />
+                        ) : (
+                            <textarea
+                                value={modalValue}
+                                onChange={(e) => setModalValue(e.target.value)}
+                                placeholder="Write something about yourself..."
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-700 mb-6 resize-none"
+                                rows={5}
+                                autoFocus
+                            />
+                        )}
+
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={closeModal}
+                                disabled={isSaving}
+                                className="px-6 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleModalSave}
+                                disabled={isSaving}
+                                className="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors flex items-center gap-2"
+                            >
+                                {isSaving && (
+                                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                )}
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

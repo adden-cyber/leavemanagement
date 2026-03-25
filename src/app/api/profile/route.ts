@@ -60,13 +60,22 @@ export async function PUT(request: NextRequest) {
         if (bannerImage !== undefined) updateData.bannerImage = bannerImage;
         if (icNo !== undefined) updateData.icNo = icNo;
 
+        console.log('Updating employee with data:', updateData);
+
         // Update the employee directly
         const updatedEmployee = await prisma.employee.update({
             where: { id: user.employee.id },
             data: updateData
         });
 
-        return NextResponse.json({ message: 'Profile updated successfully', employee: updatedEmployee });
+        console.log('Updated employee:', updatedEmployee);
+
+        return NextResponse.json({ 
+            employee: {
+                ...updatedEmployee,
+                email: user.email
+            }
+        });
 
     } catch (error) {
         console.error('Error updating profile:', error);
