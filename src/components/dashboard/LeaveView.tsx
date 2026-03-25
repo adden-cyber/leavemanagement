@@ -274,7 +274,7 @@ export default function LeaveView() {
     const containerMaxWidth = isAdmin ? 'max-w-6xl' : 'max-w-7xl';
 
     return (
-        <>
+        <div className={`space-y-8 animate-in fade-in duration-500 ${containerMaxWidth} mx-auto pb-10`}>
             {showSignatureModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
                     <div className="w-full max-w-xl rounded-xl bg-white p-6 shadow-xl">
@@ -321,7 +321,7 @@ export default function LeaveView() {
                     </div>
                 </div>
             )}
-        <div className={`space-y-8 animate-in fade-in duration-500 ${containerMaxWidth} mx-auto pb-10`}>
+
             {/* Header section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-lg border border-slate-100 shadow-sm">
                 <div className="flex items-center gap-4">
