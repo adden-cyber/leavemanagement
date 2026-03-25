@@ -129,6 +129,7 @@ export default function LeaveView() {
             });
             if (res.ok) {
                 setRefresh(prev => prev + 1);
+                clearCache('leaves');
                 setShowSignatureModal(false);
                 setSelectedLeaveForApproval(null);
                 setSignatureDataUrl('');

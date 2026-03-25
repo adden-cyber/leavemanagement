@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useDashboardCache } from '@/lib/DashboardCacheContext';
 
 type LeaveRequest = {
     id: string;
@@ -18,9 +19,11 @@ type LeaveRequest = {
 
 export default function LeaveHistoryView() {
     const { data: session } = useSession();
+    const { getCache, setCache, clearCache } = useDashboardCache();
     const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     const isAdmin = session?.user?.role === 'ADMIN';
 
@@ -28,11 +31,21 @@ export default function LeaveHistoryView() {
         async function fetchLeaves() {
             try {
                 setLoading(true);
+                
+                // Try to get from cache first
+                const cachedLeaves = getCache('leaves');
+                if (cachedLeaves) {
+                    setLeaves(cachedLeaves);
+                    setLoading(false);
+                    return;
+                }
+                
                 const res = await fetch('/api/leave');
                 if (!res.ok) throw new Error('Failed to load leave history');
                 const data = await res.json();
                 const leavesData = Array.isArray(data) ? data : data?.leaves ?? [];
                 setLeaves(leavesData);
+                setCache('leaves', leavesData);
             } catch (err: any) {
                 setError(err.message);
             } finally {
@@ -41,7 +54,20 @@ export default function LeaveHistoryView() {
         }
 
         fetchLeaves();
-    }, []);
+    }, [refreshTrigger]);
+
+    // Check periodically if cache was cleared and refetch if needed
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const cachedLeaves = getCache('leaves');
+            if (!cachedLeaves && leaves.length > 0) {
+                // Cache was cleared, trigger refetch
+                setRefreshTrigger(prev => prev + 1);
+            }
+        }, 1000); // Check every second
+
+        return () => clearInterval(interval);
+    }, [leaves]);
 
     if (loading) {
         return (

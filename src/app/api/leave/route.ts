@@ -41,7 +41,18 @@ export async function GET(req: Request) {
         const [leaves, totalCount] = await Promise.all([
             prisma.leaveRequest.findMany({
                 where: whereClause,
-                include: {
+                select: {
+                    id: true,
+                    employeeId: true,
+                    startDate: true,
+                    endDate: true,
+                    type: true,
+                    reason: true,
+                    status: true,
+                    managerNote: true,
+                    managerSignature: true,
+                    createdAt: true,
+                    updatedAt: true,
                     employee: {
                         select: { fullName: true, icNo: true }
                     }
