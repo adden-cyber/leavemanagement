@@ -45,6 +45,7 @@ export async function PUT(request: NextRequest) {
         }
 
         const data = await request.json();
+        const { bio, profileImage, bannerImage, icNo } = data;
         console.log('Received profile update data:', data);
 
         // First get the user to find their employee record
