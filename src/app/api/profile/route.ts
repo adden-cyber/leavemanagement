@@ -35,14 +35,17 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
     try {
+        console.log('PUT /api/profile called');
         const session = await getServerSession(authOptions);
+        console.log('Session:', session ? 'exists' : 'null');
 
         if (!session || !session.user?.email) {
+            console.log('Unauthorized: no session or email');
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const data = await request.json();
-        const { bio, profileImage, bannerImage, icNo } = data;
+        console.log('Received profile update data:', data);
 
         // First get the user to find their employee record
         const user = await prisma.user.findUnique({
@@ -69,6 +72,7 @@ export async function PUT(request: NextRequest) {
         });
 
         console.log('Updated employee:', updatedEmployee);
+        console.log('IC number saved:', updatedEmployee.icNo);
 
         return NextResponse.json({ 
             employee: {

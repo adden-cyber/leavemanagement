@@ -71,12 +71,18 @@ export default function SettingsView() {
     useEffect(() => {
         if (!showEditModal || !session?.user?.email) return;
 
+        console.log('Edit modal opened, fetching profile data...');
         const fetchProfile = async () => {
             try {
                 const res = await fetch(apiUrl('/api/profile'));
-                if (!res.ok) return;
+                if (!res.ok) {
+                    console.log('Profile fetch failed:', res.status);
+                    return;
+                }
                 const data = await res.json();
+                console.log('Fetched profile data:', data);
                 if (data.icNo !== undefined) {
+                    console.log('Setting IC number to:', data.icNo || '');
                     setIcNoInput(data.icNo || '');
                 }
             } catch (err) {
@@ -159,6 +165,7 @@ export default function SettingsView() {
             }
 
             // Also update the employee profile record (e.g., IC number)
+            console.log('About to call /api/profile with IC number:', icNoInput.trim());
             const profileRes = await fetch('/api/profile', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -166,14 +173,21 @@ export default function SettingsView() {
                 body: JSON.stringify({ icNo: icNoInput.trim() }),
             });
 
+            console.log('Profile update response status:', profileRes.status);
+            console.log('IC number being saved:', icNoInput.trim());
+
             let profileData: any = {};
             try {
-                profileData = await profileRes.json();
+                const profileText = await profileRes.text();
+                console.log('Profile response text:', profileText);
+                profileData = JSON.parse(profileText);
+                console.log('Profile response data:', profileData);
             } catch (err) {
                 console.warn('Failed to parse /api/profile response as JSON', err);
             }
 
             if (res.ok && profileRes.ok) {
+                console.log('Both API calls succeeded - IC number should be saved');
                 // make sure the local input is trimmed and up‑to‑date
                 setNameInput(nameInput.trim());
                 setSuccessMessage('Profile updated successfully!');
@@ -201,6 +215,9 @@ export default function SettingsView() {
                     window.location.reload();
                 }, 800);
             } else {
+                console.log('API call failed:', { userRes: res.status, profileRes: profileRes.status });
+                console.log('User API error:', data);
+                console.log('Profile API error:', profileData);
                 setProfileError(
                     data?.message ||
                         data?.error ||
