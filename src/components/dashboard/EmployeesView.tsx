@@ -239,9 +239,6 @@ export default function EmployeesView() {
                     <button className="px-5 py-2.5 font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all">
                         Filter
                     </button>
-                    <button className="px-5 py-2.5 font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all">
-                        Export
-                    </button>
                 </div>
             </div>
 

@@ -73,7 +73,7 @@ export default function AnalyticsView() {
     return (
         <div className="flex flex-col gap-10">
             <div>
-                <h2 className="text-2xl font-bold tracking-tight text-gray-900">Dashboard Overview</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard Overview</h2>
                 <p className="text-sm text-gray-500">Welcome back! Here's what's happening today.</p>
             </div>
 
