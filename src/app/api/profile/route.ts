@@ -59,10 +59,13 @@ export async function PUT(request: NextRequest) {
         }
 
         const updateData: any = {};
-        if (bio !== undefined) updateData.bio = bio;
+        if (bio !== undefined) updateData.bio = typeof bio === 'string' ? bio.trim() : bio;
         if (profileImage !== undefined) updateData.profileImage = profileImage;
         if (bannerImage !== undefined) updateData.bannerImage = bannerImage;
-        if (icNo !== undefined) updateData.icNo = icNo;
+        if (icNo !== undefined) {
+            const normalizedIcNo = String(icNo).trim();
+            updateData.icNo = normalizedIcNo === '' ? null : normalizedIcNo;
+        }
 
         console.log('Updating employee with data:', updateData);
 

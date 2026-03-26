@@ -61,8 +61,8 @@ export default function ProfileSettingsView() {
 
     const openModal = () => {
         setFormData({
-            icNo: profile?.icNo || '',
-            bio: profile?.bio || ''
+            icNo: profile?.icNo ?? '',
+            bio: profile?.bio ?? ''
         });
         setSaveError(null);
         setShowModal(true);
@@ -77,15 +77,16 @@ export default function ProfileSettingsView() {
         setIsSaving(true);
         setSaveError(null);
         try {
-            console.log('Saving with data:', formData);
+            const payload = {
+                icNo: formData.icNo.trim(),
+                bio: formData.bio.trim(),
+            };
+            console.log('Saving with data:', payload);
             
             const res = await fetch('/api/profile', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    icNo: formData.icNo,
-                    bio: formData.bio
-                }),
+                body: JSON.stringify(payload),
             });
 
             console.log('Response status:', res.status);
@@ -97,13 +98,20 @@ export default function ProfileSettingsView() {
                 return;
             }
 
-            // Update profile with the response
+            // Update profile and form state with the response
             if (responseData.employee) {
                 const updatedProfile = { ...profile, ...responseData.employee } as EmployeeProfile;
                 console.log('Updated profile:', updatedProfile);
                 setProfile(updatedProfile);
+                setFormData({
+                    icNo: updatedProfile.icNo ?? '',
+                    bio: updatedProfile.bio ?? ''
+                });
             }
-            
+
+            // refresh from server to avoid stale state. This is especially helpful for icNo updates.
+            await fetchProfile();
+
             closeModal();
         } catch (error) {
             console.error('Error saving:', error);
