@@ -78,7 +78,7 @@ export default function AnalyticsView() {
             </div>
 
             {/* KPI Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className={`grid gap-4 md:grid-cols-2 ${data.isAdmin ? 'lg:grid-cols-2' : 'lg:grid-cols-3'}`}>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-medium text-gray-500">Leaves This Month</CardTitle>
@@ -92,16 +92,18 @@ export default function AnalyticsView() {
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">My Leaves Applied</CardTitle>
-                        <span className="text-xl">🌴</span>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-gray-900">{data.myTotalLeavesApplied || 0}</div>
-                        <p className="text-xs text-gray-500 cursor-pointer hover:text-[#7559e0]">View your leave history</p>
-                    </CardContent>
-                </Card>
+                {!data.isAdmin && (
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">My Leaves Applied</CardTitle>
+                            <span className="text-xl">🌴</span>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-gray-900">{data.myTotalLeavesApplied || 0}</div>
+                            <p className="text-xs text-gray-500 cursor-pointer hover:text-[#7559e0]">View your leave history</p>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {data.isAdmin && data.pendingLeaveRequests && data.pendingLeaveRequests > 0 ? (
                     <Card className="bg-gradient-to-br from-[#7559e0] to-[#5939b8] text-white">
