@@ -250,43 +250,22 @@ export default function SettingsView() {
             </div>
 
             {/* Profile Section */}
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-600 shadow-sm transition-colors">
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                        <span className="text-2xl">👤</span>
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Profile</h3>
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border-2 border-slate-200 dark:border-slate-600 shadow-sm transition-colors">
+                <div className="grid grid-cols-[auto_auto] items-center gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xl">👤</span>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Profile</h3>
                     </div>
-                    <button
-                        onClick={() => setShowEditModal(true)}
-                        className="px-5 py-2 bg-[#7559e0] text-white font-bold rounded-xl hover:bg-[#6448cc] transition-colors disabled:opacity-50"
-                    >
-                        Edit
-                    </button>
-                </div>
-                
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Name</label>
-                        <p className="text-lg font-medium text-slate-900 dark:text-white">{session?.user?.name || 'Not set'}</p>
-                    </div>
-                    
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Email</label>
-                        <p className="text-lg font-medium text-slate-900 dark:text-white">{session?.user?.email || 'Not set'}</p>
-                    </div>
-                    
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">IC Card Number</label>
-                        <p className="text-lg font-medium text-slate-900 dark:text-white">{icNoInput || 'Not set'}</p>
-                    </div>
-                    
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Role</label>
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
-                            {session?.user?.role || 'Employee'}
-                        </span>
+                    <div className="text-right">
+                        <button
+                            onClick={() => setShowEditModal(true)}
+                            className="px-4 py-2 text-base bg-[#7559e0] text-white font-bold rounded-lg hover:bg-[#6448cc] transition-colors disabled:opacity-50"
+                        >
+                            Edit Profile
+                        </button>
                     </div>
                 </div>
+
             </div>
 
             {/* Edit Profile Modal */}
@@ -384,18 +363,12 @@ export default function SettingsView() {
             )}
 
             {/* Appearance Section */}
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-600 shadow-sm transition-colors min-h-[130px] flex flex-col">
-                <div className="flex items-center gap-3 mb-4">
-                    <span className="text-2xl">🎨</span>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Appearance</h3>
-                </div>
-
-                <div className="flex items-center justify-between py-2 flex-1">
-                    <div>
-                        <h4 className="font-semibold text-slate-800 dark:text-slate-100">Theme Mode</h4>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Toggle between light and dark themes.</p>
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border-2 border-slate-200 dark:border-slate-600 shadow-sm transition-colors">
+                <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                        <span className="text-2xl">🎨</span>
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Light/Dark Mode</h3>
                     </div>
-
                     <button
                         onClick={toggleTheme}
                         className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#7559e0] focus:ring-offset-2 ${theme === 'dark' ? 'bg-[#7559e0]' : 'bg-slate-300'
@@ -419,23 +392,24 @@ export default function SettingsView() {
 
             {/* Admin Section */}
             {isAdmin && (
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-600 shadow-sm transition-colors min-h-[130px] flex flex-col">
-                    <div className="flex items-center gap-3 mb-4">
-                        <span className="text-2xl">👤</span>
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Admin Tools</h3>
-                    </div>
-
-                    {!showAdminForm ? (
-                        <div className="flex-1 flex items-center">
+                <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border-2 border-slate-200 dark:border-slate-600 shadow-sm transition-colors">
+                    <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                            <span className="text-2xl">👤</span>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Admin Tools</h3>
+                        </div>
+                        {!showAdminForm && (
                             <button
                                 onClick={() => setShowAdminForm(true)}
-                                className="px-5 py-2.5 bg-[#7559e0] text-white font-bold rounded-xl hover:bg-[#6448cc] transition-colors focus:ring-2 focus:ring-[#7559e0] focus:outline-none dark:bg-[#7559e0] dark:hover:bg-[#6448cc]"
+                                className="px-4 py-2 bg-[#7559e0] text-white font-bold rounded-lg hover:bg-[#6448cc] transition-colors focus:ring-2 focus:ring-[#7559e0] focus:outline-none dark:bg-[#7559e0] dark:hover:bg-[#6448cc]"
                             >
                                 Create New Admin Account
                             </button>
-                        </div>
-                    ) : (
-                        <form onSubmit={handleCreateAdmin} className="space-y-4 flex-1">
+                        )}
+                    </div>
+
+                    {showAdminForm && (
+                        <form onSubmit={handleCreateAdmin} className="space-y-4 mt-4">
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                     Full Name
