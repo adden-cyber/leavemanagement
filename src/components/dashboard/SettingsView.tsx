@@ -67,6 +67,26 @@ export default function SettingsView() {
         fetchProfile();
     }, [session?.user?.email]);
 
+    // Refetch profile data when edit modal opens
+    useEffect(() => {
+        if (!showEditModal || !session?.user?.email) return;
+
+        const fetchProfile = async () => {
+            try {
+                const res = await fetch(apiUrl('/api/profile'));
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.icNo !== undefined) {
+                    setIcNoInput(data.icNo || '');
+                }
+            } catch (err) {
+                console.warn('Failed to fetch profile data', err);
+            }
+        };
+
+        fetchProfile();
+    }, [showEditModal, session?.user?.email]);
+
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
