@@ -6,7 +6,8 @@ import { useSession } from 'next-auth/react';
 interface EmployeeProfile {
     id: string;
     fullName: string;
-    email: string;
+    username?: string;
+    email?: string;
     position: string;
     status: string;
     icNo: string | null;
@@ -218,12 +219,12 @@ export default function ProfileSettingsView() {
                                 />
                             </div>
 
-                            {/* Email (Read-only) */}
+                            {/* Username (Read-only) */}
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Username</label>
                                 <input
-                                    type="email"
-                                    value={profile?.email || ''}
+                                    type="text"
+                                    value={profile?.username || ''}
                                     disabled
                                     className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
                                 />

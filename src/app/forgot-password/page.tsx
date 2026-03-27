@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 export default function ForgotPasswordPage() {
     const router = useRouter();
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
@@ -20,7 +20,7 @@ export default function ForgotPasswordPage() {
             const res = await fetch('/api/forgot-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, newPassword }),
+                body: JSON.stringify({ username, newPassword }),
             });
 
             if (res.ok) {
@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
                 <div className="mb-8 text-center">
                     <h2 className="text-3xl font-bold text-gray-900 mb-2">Reset Password</h2>
                     <p className="text-gray-500 text-sm">
-                        Enter your email address and a new password below.
+                        Enter your username and a new password below.
                     </p>
                 </div>
 
@@ -75,11 +75,11 @@ export default function ForgotPasswordPage() {
                                     </svg>
                                 </span>
                                 <input
-                                    id="email"
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="Registered Email Address"
+                                    id="username"
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    placeholder="Username"
                                     className="w-full rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#7559e0] focus:ring-1 focus:ring-[#7559e0] transition-colors bg-white hover:border-gray-300 shadow-sm"
                                     style={{ paddingLeft: '3rem', paddingRight: '1rem', paddingTop: '0.875rem', paddingBottom: '0.875rem' }}
                                     required

@@ -80,10 +80,10 @@ const Sidebar = () => {
             <div className="p-4 border-t border-white/10 relative z-20">
                 <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 border border-white/5 backdrop-blur-sm">
                     <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-xs font-bold text-[#2563eb] flex-shrink-0 shadow-sm">
-                        {session?.user?.name?.[0] || session?.user?.email?.[0]?.toUpperCase() || 'U'}
+                        {session?.user?.name?.[0] || (session?.user as any)?.username?.[0]?.toUpperCase() || session?.user?.email?.[0]?.toUpperCase() || 'U'}
                     </div>
                     <div className="flex-1 min-w-0 text-left">
-                        <p className="text-sm font-semibold text-white truncate">{session?.user?.name || session?.user?.email?.split('@')[0] || 'User'}</p>
+                        <p className="text-sm font-semibold text-white truncate">{session?.user?.name || (session?.user as any)?.username || session?.user?.email?.split('@')[0] || 'User'}</p>
                         <p className="text-xs text-blue-200 truncate">{session?.user?.role || 'Admin'}</p>
                     </div>
                     <button

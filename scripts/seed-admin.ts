@@ -4,12 +4,12 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-    const email = 'admin@hr.com';
+    const username = 'admin.lms';
     const password = 'adminpassword';
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const existingUser = await prisma.user.findUnique({
-        where: { email },
+        where: { username },
     });
 
     if (existingUser) {
@@ -19,7 +19,7 @@ async function main() {
 
     const user = await prisma.user.create({
         data: {
-            email,
+            username,
             name: 'System Administrator',
             password: hashedPassword,
             role: 'ADMIN',
@@ -33,7 +33,7 @@ async function main() {
         },
     });
 
-    console.log('Admin user created with email:', user.email, 'and password:', password);
+    console.log('Admin user created with username:', user.username, 'and password:', password);
 }
 
 main()

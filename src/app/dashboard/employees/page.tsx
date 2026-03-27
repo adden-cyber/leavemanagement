@@ -11,7 +11,7 @@ interface Employee {
     status: string;
     joinDate: string;
     user: {
-        email: string;
+        username: string;
         role: string;
     };
 }
@@ -44,7 +44,7 @@ export default function EmployeesPage() {
 
     const filteredEmployees = employees.filter(emp =>
         emp.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        emp.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         emp.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         emp.status?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -71,7 +71,7 @@ export default function EmployeesPage() {
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">🔍</span>
                     <input
                         type="text"
-                        placeholder="Search by name, role, or email..."
+                        placeholder="Search by name, role, or username..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 bg-slate-50/50"
@@ -115,7 +115,7 @@ export default function EmployeesPage() {
                                                 </div>
                                                 <div>
                                                     <p className="font-semibold text-slate-900">{emp.fullName}</p>
-                                                    <p className="text-sm text-slate-500">{emp.user?.email}</p>
+                                                    <p className="text-sm text-slate-500">{emp.user?.username}</p>
                                                 </div>
                                             </div>
                                         </td>

@@ -4,17 +4,17 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
     try {
-        const { email, newPassword } = await req.json();
+        const { username, newPassword } = await req.json();
 
-        if (!email || !newPassword) {
+        if (!username || !newPassword) {
             return NextResponse.json(
-                { message: "Missing email or new password" },
+                { message: "Missing username or new password" },
                 { status: 400 }
             );
         }
 
         const user = await prisma.user.findUnique({
-            where: { email }
+            where: { username }
         });
 
         if (!user) {
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
         await prisma.user.update({
-            where: { email },
+            where: { username },
             data: { password: hashedPassword }
         });
 

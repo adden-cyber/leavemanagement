@@ -45,7 +45,8 @@ export default function SettingsView() {
 
     // Fetch employee profile info (including IC number)
     useEffect(() => {
-        if (!session?.user?.email) return;
+        const username = (session?.user as any)?.username || session?.user?.email;
+        if (!username) return;
 
         const fetchProfile = async () => {
             try {
@@ -69,7 +70,8 @@ export default function SettingsView() {
 
     // Refetch profile data when edit modal opens
     useEffect(() => {
-        if (!showEditModal || !session?.user?.email) return;
+        const username = (session?.user as any)?.username || session?.user?.email;
+        if (!showEditModal || !username) return;
 
         console.log('Edit modal opened, fetching profile data...');
         const fetchProfile = async () => {

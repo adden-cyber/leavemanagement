@@ -11,7 +11,7 @@ export const authOptions: NextAuthOptions = {
         CredentialsProvider({
             name: "Credentials",
             credentials: {
-                email: { label: "Email", type: "email" },
+                username: { label: "Username", type: "text" },
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials) {
@@ -19,10 +19,10 @@ export const authOptions: NextAuthOptions = {
                 console.log('Starting authentication...');
 
                 // normalize input so users can type uppercase or add spaces
-                const emailInput = credentials?.email?.trim().toLowerCase();
+                const usernameInput = credentials?.username?.trim().toLowerCase();
                 const passwordInput = credentials?.password;
 
-                if (!emailInput || !passwordInput) {
+                if (!usernameInput || !passwordInput) {
                     console.log('Authentication failed: missing credentials');
                     return null;
                 }
@@ -31,7 +31,7 @@ export const authOptions: NextAuthOptions = {
                     console.log('Looking up user...');
                     const userLookupStart = Date.now();
                     const user = await prisma.user.findUnique({
-                        where: { email: emailInput }
+                        where: { username: usernameInput }
                     });
                     const userLookupTime = Date.now() - userLookupStart;
                     console.log(`User lookup took ${userLookupTime}ms`);
@@ -64,7 +64,8 @@ export const authOptions: NextAuthOptions = {
                     // successful
                     return {
                         id: user.id,
-                        email: user.email,
+                        username: user.username,
+                        email: user.username,
                         role: user.role,
                         name: user.name,
                     };
@@ -85,6 +86,7 @@ export const authOptions: NextAuthOptions = {
                 token.role = user.role;
                 token.id = user.id;
                 token.name = user.name;
+                token.username = (user as any)?.username || (user as any)?.email;
             }
             const jwtTime = Date.now() - jwtStart;
             if (jwtTime > 100) { // Log if JWT callback takes more than 100ms
@@ -98,6 +100,8 @@ export const authOptions: NextAuthOptions = {
                 session.user.role = token.role;
                 session.user.id = token.id;
                 session.user.name = token.name;
+                (session.user as any).username = (token as any)?.username || (session.user as any).username || session.user.email;
+                session.user.email = (token as any)?.username || session.user.email;
             }
             const sessionTime = Date.now() - sessionStart;
             if (sessionTime > 100) { // Log if session callback takes more than 100ms
@@ -122,7 +126,7 @@ export const authOptions: NextAuthOptions = {
                     await prisma.activity.create({
                         data: {
                             userId: user.id,
-                            userName: (user.name || user.email || '').toString(),
+                            userName: (user.name || (user as any).username || user.email || '').toString(),
                             action: 'Logged in',
                         }
                     });
@@ -140,7 +144,7 @@ export const authOptions: NextAuthOptions = {
                     await prisma.activity.create({
                         data: {
                             userId: token?.id as string | undefined,
-                            userName: (token?.name || token?.email || '').toString(),
+                            userName: (token?.name || (token as any)?.username || token?.email || '').toString(),
                             action: 'Logged out',
                         }
                     });

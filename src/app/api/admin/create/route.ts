@@ -28,12 +28,12 @@ export async function POST(req: Request) {
             );
         }
 
-        let { email, password, fullName } = payload;
+        let { username, password, fullName } = payload;
 
-        // Normalize email
-        email = typeof email === 'string' ? email.trim().toLowerCase() : email;
+        // Normalize username
+        username = typeof username === 'string' ? username.trim().toLowerCase() : username;
 
-        if (!email || !password || !fullName) {
+        if (!username || !password || !fullName) {
             return NextResponse.json(
                 { message: "Missing required fields" },
                 { status: 400 }
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
         }
 
         const existingUser = await prisma.user.findUnique({
-            where: { email },
+            where: { username },
         });
 
         if (existingUser) {
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
 
         const user = await prisma.user.create({
             data: {
-                email,
+                username,
                 name: fullName,
                 password: hashedPassword,
                 role: "ADMIN",
@@ -81,8 +81,8 @@ export async function POST(req: Request) {
             await prisma.activity.create({
                 data: {
                     userId: session.user.id,
-                    userName: session.user.name || session.user.email?.split('@')[0] || 'Admin',
-                    action: `Created admin account: ${fullName}`,
+                    userName: session.user.name || (session.user as any).username || session.user.email?.split('@')[0] || 'Admin',
+                    action: `Created admin account: ${user.username}`,
                     metadata: { newAdminId: user.id }
                 }
             });
@@ -91,7 +91,7 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json(
-            { message: "Admin account created successfully", user: { id: user.id, email: user.email } },
+            { message: "Admin account created successfully", user: { id: user.id, username: user.username } },
             { status: 201 }
         );
     } catch (error) {

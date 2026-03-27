@@ -14,7 +14,7 @@ interface Employee {
     status: string;
     joinDate: string;
     user: {
-        email: string;
+        username: string;
         role: string;
     };
 }
@@ -117,7 +117,7 @@ export default function EmployeesView() {
 
     const filteredEmployees = employees.filter(emp =>
         emp.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        emp.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         emp.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         emp.status?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -228,7 +228,7 @@ export default function EmployeesView() {
                     <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 text-xl pointer-events-none">🔍</span>
                     <input
                         type="text"
-                        placeholder="Search by name, role, or email..."
+                        placeholder="Search by name, role, or username..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pr-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 bg-slate-50/50"
@@ -297,7 +297,7 @@ export default function EmployeesView() {
                                                     </div>
                                                     <div>
                                                         <p className="font-semibold text-slate-900">{emp.fullName}</p>
-                                                        <p className="text-sm text-slate-500">{emp.user?.email}</p>
+                                                        <p className="text-sm text-slate-500">{emp.user?.username}</p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -324,7 +324,7 @@ export default function EmployeesView() {
                                             </td>
                                             <td className="px-8 py-5 text-slate-600">{new Date(emp.joinDate).toLocaleDateString()}</td>
                                             <td className="px-8 py-5 flex justify-end gap-2">
-                                                {(isAdmin || emp.user?.email === session?.user?.email) && (
+                                                {(isAdmin || emp.user?.username === session?.user?.email) && (
                                                     <button
                                                         onClick={() => handleEditClick(emp)}
                                                         className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
@@ -333,7 +333,7 @@ export default function EmployeesView() {
                                                         ✏️
                                                     </button>
                                                 )}
-                                                {isAdmin && emp.user.email !== session?.user?.email && (
+                                                {isAdmin && emp.user.username !== session?.user?.email && (
                                                     <button
                                                         onClick={() => handleDelete(emp.id)}
                                                         className="p-2 text-red-400 hover:text-white hover:bg-red-500 rounded-lg transition-all"
@@ -392,7 +392,7 @@ export default function EmployeesView() {
                                                     </div>
                                                     <div>
                                                         <p className="font-semibold text-slate-900 hover:underline">{emp.fullName}</p>
-                                                        <p className="text-sm text-slate-500">{emp.user?.email}</p>
+                                                        <p className="text-sm text-slate-500">{emp.user?.username}</p>
                                                     </div>
                                                 </button>
                                             </td>
@@ -408,7 +408,7 @@ export default function EmployeesView() {
                                             </td>
                                             <td className="px-8 py-5 text-slate-600">{new Date(emp.joinDate).toLocaleDateString()}</td>
                                             <td className="px-8 py-5 flex justify-end gap-2">
-                                                {(isAdmin || emp.user?.email === session?.user?.email) && (
+                                                {(isAdmin || emp.user?.username === session?.user?.email) && (
                                                     <button
                                                         onClick={() => handleEditClick(emp)}
                                                         className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
@@ -417,7 +417,7 @@ export default function EmployeesView() {
                                                         ✏️
                                                     </button>
                                                 )}
-                                                {isAdmin && emp.user.email !== session?.user?.email && (
+                                                {isAdmin && emp.user.username !== session?.user?.email && (
                                                     <button
                                                         onClick={() => handleDelete(emp.id)}
                                                         className="p-2 text-red-400 hover:text-white hover:bg-red-500 rounded-lg transition-all"

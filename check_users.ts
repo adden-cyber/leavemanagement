@@ -14,7 +14,7 @@ async function main() {
         console.log('Total users in database:', users.length);
         console.log('Users:');
         users.forEach((u: any) => {
-            console.log(`- Email: ${u.email}, Role: ${u.role}, Hash length: ${u.password.length}`);
+            console.log(`- Username: ${u.username}, Role: ${u.role}, Hash length: ${u.password.length}`);
         });
     } catch (e: any) {
         console.error('Error:', e.message);

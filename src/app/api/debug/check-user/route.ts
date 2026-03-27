@@ -5,14 +5,14 @@ export async function GET() {
         console.log('DEBUG: DATABASE_URL:', process.env.DATABASE_URL);
         
         const user = await prisma.user.findUnique({
-            where: { email: 'hr@example.com' }
+            where: { username: 'admin.lms' }
         });
 
         if (user) {
             return Response.json({
                 success: true,
                 user: {
-                    email: user.email,
+                    username: user.username,
                     role: user.role,
                     hasPassword: !!user.password
                 }

@@ -7,12 +7,13 @@ export async function GET() {
     try {
         const session = await getServerSession(authOptions);
 
-        if (!session || !session.user?.email) {
+        const username = (session?.user as any)?.username || session?.user?.email;
+        if (!session || !username) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const user = await prisma.user.findUnique({
-            where: { email: session.user.email },
+            where: { username },
             include: {
                 employee: true,
             },
@@ -24,7 +25,7 @@ export async function GET() {
 
         return NextResponse.json({
             ...user.employee,
-            email: user.email,
+            username: user.username,
         });
 
     } catch (error) {
@@ -39,8 +40,9 @@ export async function PUT(request: NextRequest) {
         const session = await getServerSession(authOptions);
         console.log('Session:', session ? 'exists' : 'null');
 
-        if (!session || !session.user?.email) {
-            console.log('Unauthorized: no session or email');
+        const username = (session?.user as any)?.username || session?.user?.email;
+        if (!session || !username) {
+            console.log('Unauthorized: no session or username');
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -50,7 +52,7 @@ export async function PUT(request: NextRequest) {
 
         // First get the user to find their employee record
         const user = await prisma.user.findUnique({
-            where: { email: session.user.email },
+            where: { username },
             include: { employee: true }
         });
 
@@ -81,7 +83,7 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ 
             employee: {
                 ...updatedEmployee,
-                email: user.email
+                username: user.username
             }
         });
 

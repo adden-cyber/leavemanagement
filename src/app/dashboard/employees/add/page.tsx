@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 export default function AddEmployeePage() {
     const router = useRouter();
     const [fullName, setFullName] = useState('');
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [position, setPosition] = useState('');
     const [status, setStatus] = useState('PERMANENT');
     const [joinDate, setJoinDate] = useState('');
@@ -21,7 +21,7 @@ export default function AddEmployeePage() {
             const res = await fetch('/api/employees', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fullName, email, position, status, joinDate, role }),
+                body: JSON.stringify({ fullName, username, position, status, joinDate, role }),
             });
 
             if (res.ok) {
@@ -56,13 +56,13 @@ export default function AddEmployeePage() {
                         </div>
 
                         <div>
-                            <label className="text-gray-700" htmlFor="email">Email Address</label>
+                            <label className="text-gray-700" htmlFor="username">Username</label>
                             <input
-                                id="email"
-                                type="email"
+                                id="username"
+                                type="text"
                                 className="w-full mt-2 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
                                 required
                             />
                         </div>

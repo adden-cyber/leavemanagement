@@ -25,7 +25,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         }
 
         const isAdmin = session.user.role === 'ADMIN';
-        const isSelf = currentEmployee.user?.email === session.user.email;
+        const currentUsername = ((session.user as any).username as string | undefined) || session.user.email;
+        const isSelf = currentEmployee.user?.username === currentUsername;
 
         // Only ADMIN can update other employees' records
         if (!isAdmin && !isSelf) {

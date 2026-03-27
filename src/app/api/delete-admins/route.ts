@@ -3,12 +3,12 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
     try {
-        const emails = ['admin@hrsystem.com', 'admin@songyinroro.com'];
+        const usernames = ['admin@hrsystem.com', 'admin@songyinroro.com']; // old emails, but now usernames
         let deleted = [];
-        for (const email of emails) {
+        for (const username of usernames) {
             try {
-                await prisma.user.delete({ where: { email } });
-                deleted.push(email);
+                await prisma.user.delete({ where: { username } });
+                deleted.push(username);
             } catch (e: any) {
                 // Ignore if not exists
             }

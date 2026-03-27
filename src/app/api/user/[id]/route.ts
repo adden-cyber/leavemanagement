@@ -36,10 +36,10 @@ export async function DELETE(
             data: {
                 userId: session.user.id, // The user performing the deletion
                 userName: session.user.name || session.user.email || 'Unknown',
-                action: `Deleted account for ${userToDelete.employee?.fullName || userToDelete.email}`,
+                action: `Deleted account for ${userToDelete.employee?.fullName || userToDelete.username}`,
                 metadata: { 
                     deletedUserId: userToDelete.id,
-                    deletedUserEmail: userToDelete.email,
+                    deletedUsername: userToDelete.username,
                     deletedBy: session.user.id
                 }
             }
@@ -82,10 +82,9 @@ export async function PUT(
 
         const body = await req.json();
         console.log('[user PUT] body', body);
-        const { name, email } = body;
+        const { name } = body;
         const updateData: any = {};
         if (name !== undefined) updateData.name = name;
-        if (email !== undefined) updateData.email = email;
 
         if (Object.keys(updateData).length === 0) {
             return NextResponse.json({ message: 'No data provided for update' }, { status: 400 });

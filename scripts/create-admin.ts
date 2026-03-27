@@ -15,22 +15,22 @@ const { prisma } = require('../src/lib/prisma');
 async function main() {
     console.log(`Connecting to database at ${url}...`);
 
-    const email = 'hr@example.com';
+    const username = 'admin.lms';
     const password = '123456';
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    console.log(`Creating/Updating user ${email}...`);
+    console.log(`Creating/Updating user ${username}...`);
 
     try {
         const user = await prisma.user.upsert({
-            where: { email },
+            where: { username },
             update: {
                 name: 'Admin',
                 password: hashedPassword,
                 role: 'ADMIN',
             },
             create: {
-                email,
+                username,
                 name: 'Admin',
                 password: hashedPassword,
                 role: 'ADMIN',
@@ -45,7 +45,7 @@ async function main() {
             },
         });
 
-        console.log(`User ${user.email} created/updated with role ${user.role}`);
+        console.log(`User ${user.username} created/updated with role ${user.role}`);
 
         // Ensure employee record exists if user was updated but didn't have one
         const employee = await prisma.employee.findUnique({ where: { userId: user.id } });

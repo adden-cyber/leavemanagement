@@ -10,7 +10,7 @@ type Employee = {
     status: string;
     joinDate: string;
     user: {
-        email: string;
+        username: string;
     }
 };
 
@@ -144,8 +144,8 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                             <p>{employee.fullName}</p>
                         </div>
                         <div>
-                            <label className="text-gray-700 font-bold">Email</label>
-                            <p>{employee.user?.email}</p>
+                            <label className="text-gray-700 font-bold">Username</label>
+                            <p>{employee.user?.username}</p>
                         </div>
                         <div>
                             <label className="text-gray-700 font-bold">Position</label>

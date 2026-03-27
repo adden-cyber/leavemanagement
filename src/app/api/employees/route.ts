@@ -20,7 +20,7 @@ export async function GET() {
                 joinDate: true,
                 user: {
                     select: {
-                        email: true,
+                        username: true,
                         role: true,
                     }
                 }
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
             // return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const { fullName, email, position, status = 'PERMANENT', joinDate, role = 'EMPLOYEE' } = await req.json();
+        const { fullName, username, position, status = 'PERMANENT', joinDate, role = 'EMPLOYEE' } = await req.json();
 
         const bcrypt = require('bcryptjs');
         const hashedPassword = await bcrypt.hash('password123', 10);
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
         const result = await prisma.$transaction(async (tx) => {
             const user = await tx.user.create({
                 data: {
-                    email,
+                    username,
                     password: hashedPassword,
                     role: normalizedRole,
                 }
