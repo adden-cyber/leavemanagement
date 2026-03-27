@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const Sidebar = () => {
     const pathname = usePathname();
@@ -55,8 +55,31 @@ const Sidebar = () => {
     const [mobilePage, setMobilePage] = useState(0);
     const pageSize = 3;
     const totalPages = Math.max(1, Math.ceil(navItems.length / pageSize));
+    const scrollRef = useRef<HTMLDivElement>(null);
 
-    const mobileItems = navItems.slice(mobilePage * pageSize, mobilePage * pageSize + pageSize);
+    const handleDotClick = (pageIndex: number) => {
+        const container = scrollRef.current;
+        if (!container) return;
+        const pageWidth = container.clientWidth;
+        container.scrollTo({ left: pageWidth * pageIndex, behavior: 'smooth' });
+        setMobilePage(pageIndex);
+    };
+
+    useEffect(() => {
+        const container = scrollRef.current;
+        if (!container) return;
+
+        const onScroll = () => {
+            const pageWidth = container.clientWidth;
+            const index = Math.round(container.scrollLeft / pageWidth);
+            if (index !== mobilePage) {
+                setMobilePage(index);
+            }
+        };
+
+        container.addEventListener('scroll', onScroll, { passive: true });
+        return () => container.removeEventListener('scroll', onScroll);
+    }, [mobilePage]);
 
     return (
         <>
@@ -119,36 +142,22 @@ const Sidebar = () => {
             </aside>
 
             <aside className="md:hidden fixed bottom-0 left-0 right-0 bg-[#2563eb] text-white border-t border-white/20 shadow-lg z-50">
-                <div className="flex items-center justify-between px-2 py-2">
-                    <button
-                        onClick={() => setMobilePage((prev) => (prev - 1 + totalPages) % totalPages)}
-                        className="text-white p-2 rounded-lg hover:bg-white/20 transition"
-                        aria-label="Previous"
-                    >
-                        ◀
-                    </button>
-                    <div className="flex items-center gap-2 overflow-hidden">
-                        {mobileItems.map((item) => {
-                            const isActive = pathname === '/dashboard' && item.view === currentView;
-                            return (
-                                <Link
-                                    key={item.name}
-                                    href={item.href}
-                                    className={`flex flex-col items-center justify-center min-w-[6rem] px-3 py-2 rounded-lg transition ${isActive ? 'bg-white text-[#2563eb]' : 'text-blue-100 hover:bg-white/20 hover:text-white'}`}
-                                >
-                                    <span className="text-lg">{item.icon()}</span>
-                                    <span className="text-xs font-medium truncate max-w-[4rem]">{item.name}</span>
-                                </Link>
-                            );
-                        })}
-                    </div>
-                    <button
-                        onClick={() => setMobilePage((prev) => (prev + 1) % totalPages)}
-                        className="text-white p-2 rounded-lg hover:bg-white/20 transition"
-                        aria-label="Next"
-                    >
-                        ▶
-                    </button>
+                <div ref={scrollRef} className="flex items-center gap-2 overflow-x-auto px-2 py-2 snap-x snap-mandatory touch-pan-x no-scrollbar">
+                    {navItems.map((item) => {
+                        const isActive = pathname === '/dashboard' && item.view === currentView;
+                        return (
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                className={`snap-center flex-shrink-0 min-w-[33%] sm:min-w-[32%] px-2 py-2 rounded-lg text-center transition ${isActive ? 'bg-white text-[#2563eb]' : 'text-blue-100 hover:bg-white/20 hover:text-white'}`}
+                            >
+                                <div className="flex flex-col items-center justify-center gap-1">
+                                    <span className="text-base">{item.icon()}</span>
+                                    <span className="text-xs font-medium truncate max-w-[5rem]">{item.name}</span>
+                                </div>
+                            </Link>
+                        );
+                    })}
                 </div>
                 <div className="flex justify-center items-center gap-2 px-2 pb-2">
                     {Array.from({ length: totalPages }).map((_, idx) => (
@@ -156,7 +165,7 @@ const Sidebar = () => {
                             key={idx}
                             aria-label={`Go to page ${idx + 1}`}
                             className={`h-2 w-2 rounded-full ${idx === mobilePage ? 'bg-white' : 'bg-white/40'}`}
-                            onClick={() => setMobilePage(idx)}
+                            onClick={() => handleDotClick(idx)}
                         />
                     ))}
                 </div>

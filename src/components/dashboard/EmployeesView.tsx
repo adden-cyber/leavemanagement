@@ -291,14 +291,15 @@ export default function EmployeesView() {
                 </button>
                 {showAdmins && (
                     <div className="overflow-x-auto animate-in fade-in slide-in-from-top-4 duration-300">
-                        <table className="w-full text-left">
+                        <table className="w-full text-left text-sm">
                             <thead className="bg-white border-b border-slate-100">
                                 <tr>
-                                    <th className="px-8 py-5 font-semibold text-slate-700 w-[40%]">Admin</th>
-                                    <th className="px-8 py-5 font-semibold text-slate-700 w-[15%]">Role</th>
-                                    <th className="px-8 py-5 font-semibold text-slate-700 w-[20%]">Status</th>
-                                    <th className="px-8 py-5 font-semibold text-slate-700 w-[15%]">Joined</th>
-                                    <th className="px-8 py-5 font-semibold text-slate-700 w-[10%] text-right">Actions</th>
+                                    <th className="px-8 py-5 text-xs sm:text-sm font-semibold text-slate-700 w-[40%]">Admin</th>
+                                    <th className="px-8 py-5 text-xs sm:text-sm font-semibold text-slate-700 w-[15%] hidden sm:table-cell">Role</th>
+                                    <th className="px-8 py-5 text-xs sm:text-sm font-semibold text-slate-700 w-[20%] hidden sm:table-cell">Status</th>
+                                    <th className="px-8 py-5 text-xs sm:text-sm font-semibold text-slate-700 w-[25%] sm:hidden">Role & Status</th>
+                                    <th className="px-8 py-5 text-xs sm:text-sm font-semibold text-slate-700 w-[15%]">Joined</th>
+                                    <th className="px-8 py-5 text-xs sm:text-sm font-semibold text-slate-700 w-[10%] text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -320,7 +321,15 @@ export default function EmployeesView() {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-5">
+                                            <td className="px-8 py-5 sm:hidden">
+                                                <div className="text-left">
+                                                    <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Role</div>
+                                                    <div className="font-semibold text-sm text-slate-800">{(emp.user?.role ?? 'EMPLOYEE').toUpperCase()}</div>
+                                                    <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 mt-1">Status</div>
+                                                    <div className="px-2 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 inline-block">{emp.status}</div>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-5 hidden sm:table-cell">
                                                 {(() => {
                                                     const role = (emp.user?.role ?? 'EMPLOYEE').toUpperCase();
                                                     const roleLabel = role === 'PROBATION' ? 'Probation' : role === 'ADMIN' ? 'Admin' : 'Employee';
@@ -336,7 +345,7 @@ export default function EmployeesView() {
                                                     );
                                                 })()}
                                             </td>
-                                            <td className="px-8 py-5">
+                                            <td className="px-8 py-5 hidden sm:table-cell">
                                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700">
                                                     {emp.status}
                                                 </span>
@@ -383,14 +392,15 @@ export default function EmployeesView() {
                 </button>
                 {showStaff && (
                     <div className="overflow-x-auto animate-in fade-in slide-in-from-top-4 duration-300">
-                        <table className="w-full text-left">
+                        <table className="w-full text-left text-sm">
                             <thead className="bg-white border-b border-slate-100">
                                 <tr>
-                                    <th className="px-8 py-5 font-semibold text-slate-700 w-[40%]">Employee</th>
-                                    <th className="px-8 py-5 font-semibold text-slate-700 w-[15%]">Role</th>
-                                    <th className="px-8 py-5 font-semibold text-slate-700 w-[20%]">Status</th>
-                                    <th className="px-8 py-5 font-semibold text-slate-700 w-[15%]">Joined</th>
-                                    <th className="px-8 py-5 font-semibold text-slate-700 w-[10%] text-right">Actions</th>
+                                    <th className="px-8 py-5 text-xs sm:text-sm font-semibold text-slate-700 w-[40%]">Employee</th>
+                                    <th className="px-8 py-5 text-xs sm:text-sm font-semibold text-slate-700 w-[15%] hidden sm:table-cell">Role</th>
+                                    <th className="px-8 py-5 text-xs sm:text-sm font-semibold text-slate-700 w-[20%] hidden sm:table-cell">Status</th>
+                                    <th className="px-8 py-5 text-xs sm:text-sm font-semibold text-slate-700 w-[25%] sm:hidden">Role & Status</th>
+                                    <th className="px-8 py-5 text-xs sm:text-sm font-semibold text-slate-700 w-[15%]">Joined</th>
+                                    <th className="px-8 py-5 text-xs sm:text-sm font-semibold text-slate-700 w-[10%] text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -415,12 +425,20 @@ export default function EmployeesView() {
                                                     </div>
                                                 </button>
                                             </td>
-                                            <td className="px-8 py-5">
+                                            <td className="px-8 py-5 sm:hidden">
+                                                <div className="text-left">
+                                                    <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Role</div>
+                                                    <div className="font-semibold text-sm text-slate-800">{emp.user?.role ?? 'EMPLOYEE'}</div>
+                                                    <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 mt-1">Status</div>
+                                                    <div className="px-2 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 inline-block">{emp.status}</div>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-5 hidden sm:table-cell">
                                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
                                                     {emp.user?.role ?? 'EMPLOYEE'}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-5">
+                                            <td className="px-8 py-5 hidden sm:table-cell">
                                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700">
                                                     {emp.status}
                                                 </span>
