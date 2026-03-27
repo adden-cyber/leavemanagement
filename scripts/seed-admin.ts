@@ -27,7 +27,7 @@ async function main() {
                 create: {
                     fullName: 'System Administrator',
                     position: 'Admin',
-                    department: 'Management',
+                    status: 'PERMANENT',
                 }
             }
         },

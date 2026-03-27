@@ -15,7 +15,7 @@ model User {
   email     String    @unique
   name      String?
   password  String
-  role      String    @default("EMPLOYEE") // "ADMIN", "EMPLOYEE"
+  role      String    @default("EMPLOYEE") // "ADMIN", "EMPLOYEE", "PROBATION"
   employee  Employee?
   announcements Announcement[]
   createdAt DateTime  @default(now())
@@ -29,7 +29,7 @@ model Employee {
   fullName         String
   icNo             String?        // Added IC Number
   position         String
-  department       String
+  status           String         @default("PERMANENT") // PERMANENT, PROBATION
   joinDate         DateTime       @default(now())
   attendanceRecord Attendance[]
   leaveRequests    LeaveRequest[]

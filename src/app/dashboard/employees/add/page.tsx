@@ -8,8 +8,9 @@ export default function AddEmployeePage() {
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [position, setPosition] = useState('');
-    const [department, setDepartment] = useState('');
+    const [status, setStatus] = useState('PERMANENT');
     const [joinDate, setJoinDate] = useState('');
+    const [role, setRole] = useState('EMPLOYEE');
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -20,7 +21,7 @@ export default function AddEmployeePage() {
             const res = await fetch('/api/employees', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fullName, email, position, department, joinDate }),
+                body: JSON.stringify({ fullName, email, position, status, joinDate, role }),
             });
 
             if (res.ok) {
@@ -79,15 +80,16 @@ export default function AddEmployeePage() {
                         </div>
 
                         <div>
-                            <label className="text-gray-700" htmlFor="department">Department</label>
-                            <input
-                                id="department"
-                                type="text"
+                            <label className="text-gray-700" htmlFor="status">Status</label>
+                            <select
+                                id="status"
                                 className="w-full mt-2 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
-                                value={department}
-                                onChange={(e) => setDepartment(e.target.value)}
-                                required
-                            />
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value)}
+                            >
+                                <option value="PERMANENT">Permanent</option>
+                                <option value="PROBATION">Probation</option>
+                            </select>
                         </div>
 
                         <div>
@@ -101,9 +103,23 @@ export default function AddEmployeePage() {
                                 required
                             />
                         </div>
+
+                        <div>
+                            <label className="text-gray-700" htmlFor="role">Role</label>
+                            <select
+                                id="role"
+                                className="w-full mt-2 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
+                                value={role}
+                                onChange={(e) => setRole(e.target.value)}
+                            >
+                                <option value="EMPLOYEE">Employee</option>
+                                <option value="PROBATION">Probation</option>
+                                <option value="ADMIN">Admin</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <div className="flex justify-end mt-4">
+                                    <div className="flex justify-end mt-4">
                         <button
                             type="submit"
                             className="px-6 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none focus:bg-indigo-500"

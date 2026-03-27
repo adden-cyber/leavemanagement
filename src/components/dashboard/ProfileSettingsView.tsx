@@ -8,7 +8,7 @@ interface EmployeeProfile {
     fullName: string;
     email: string;
     position: string;
-    department: string;
+    status: string;
     icNo: string | null;
     joinDate: string;
     workingStatus: string;
@@ -268,10 +268,10 @@ export default function ProfileSettingsView() {
                             {/* Department and Position */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Department</label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
                                     <input
                                         type="text"
-                                        value={profile?.department || ''}
+                                        value={profile?.status || ''}
                                         disabled
                                         className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
                                     />

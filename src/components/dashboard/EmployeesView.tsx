@@ -11,7 +11,7 @@ interface Employee {
     fullName: string;
     icNo?: string | null;
     position: string;
-    department: string;
+    status: string;
     joinDate: string;
     user: {
         email: string;
@@ -119,7 +119,7 @@ export default function EmployeesView() {
         emp.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         emp.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         emp.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        emp.department?.toLowerCase().includes(searchTerm.toLowerCase())
+        emp.status?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const filteredAdmins = filteredEmployees.filter(emp => (emp.user?.role ?? 'EMPLOYEE').toUpperCase?.() === 'ADMIN');
@@ -133,7 +133,7 @@ export default function EmployeesView() {
         fullName: '',
         icNo: '',
         position: '',
-        department: '',
+        status: 'PERMANENT',
         role: 'EMPLOYEE'
     });
 
@@ -143,7 +143,7 @@ export default function EmployeesView() {
             fullName: employee.fullName,
             icNo: employee.icNo ?? '',
             position: employee.position,
-            department: employee.department,
+            status: employee.status ?? 'PERMANENT',
             role: employee.user?.role ?? 'EMPLOYEE'
         });
     };
@@ -277,7 +277,7 @@ export default function EmployeesView() {
                                 <tr>
                                     <th className="px-8 py-5 font-semibold text-slate-700 w-[40%]">Admin</th>
                                     <th className="px-8 py-5 font-semibold text-slate-700 w-[15%]">Role</th>
-                                    <th className="px-8 py-5 font-semibold text-slate-700 w-[20%]">Department</th>
+                                    <th className="px-8 py-5 font-semibold text-slate-700 w-[20%]">Status</th>
                                     <th className="px-8 py-5 font-semibold text-slate-700 w-[15%]">Joined</th>
                                     <th className="px-8 py-5 font-semibold text-slate-700 w-[10%] text-right">Actions</th>
                                 </tr>
@@ -302,13 +302,24 @@ export default function EmployeesView() {
                                                 </div>
                                             </td>
                                             <td className="px-8 py-5">
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                    {emp.user?.role ?? 'EMPLOYEE'}
-                                                </span>
+                                                {(() => {
+                                                    const role = (emp.user?.role ?? 'EMPLOYEE').toUpperCase();
+                                                    const roleLabel = role === 'PROBATION' ? 'Probation' : role === 'ADMIN' ? 'Admin' : 'Employee';
+                                                    const roleClasses = role === 'ADMIN'
+                                                        ? 'bg-red-100 text-red-800'
+                                                        : role === 'PROBATION'
+                                                            ? 'bg-orange-100 text-orange-800'
+                                                            : 'bg-purple-100 text-purple-800';
+                                                    return (
+                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${roleClasses}`}>
+                                                            {roleLabel}
+                                                        </span>
+                                                    );
+                                                })()}
                                             </td>
                                             <td className="px-8 py-5">
                                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700">
-                                                    {emp.department}
+                                                    {emp.status}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5 text-slate-600">{new Date(emp.joinDate).toLocaleDateString()}</td>
@@ -358,7 +369,7 @@ export default function EmployeesView() {
                                 <tr>
                                     <th className="px-8 py-5 font-semibold text-slate-700 w-[40%]">Employee</th>
                                     <th className="px-8 py-5 font-semibold text-slate-700 w-[15%]">Role</th>
-                                    <th className="px-8 py-5 font-semibold text-slate-700 w-[20%]">Department</th>
+                                    <th className="px-8 py-5 font-semibold text-slate-700 w-[20%]">Status</th>
                                     <th className="px-8 py-5 font-semibold text-slate-700 w-[15%]">Joined</th>
                                     <th className="px-8 py-5 font-semibold text-slate-700 w-[10%] text-right">Actions</th>
                                 </tr>
@@ -392,7 +403,7 @@ export default function EmployeesView() {
                                             </td>
                                             <td className="px-8 py-5">
                                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700">
-                                                    {emp.department}
+                                                    {emp.status}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5 text-slate-600">{new Date(emp.joinDate).toLocaleDateString()}</td>
@@ -461,13 +472,14 @@ export default function EmployeesView() {
                                             value={editForm.role}
                                             onChange={e => {
                                                 const newRole = e.target.value;
-                                                const newPosition = newRole === 'ADMIN' ? 'Admin' : 'Employee';
+                                                const newPosition = newRole === 'ADMIN' ? 'Admin' : newRole === 'PROBATION' ? 'Probation' : 'Employee';
                                                 setEditForm({ ...editForm, role: newRole, position: newPosition });
                                             }}
                                             className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-slate-900 focus:border-transparent outline-none transition-all bg-white"
                                         >
                                             <option value="EMPLOYEE">Employee</option>
                                             <option value="ADMIN">Admin</option>
+                                            <option value="PROBATION">Probation</option>
                                         </select>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
@@ -482,14 +494,15 @@ export default function EmployeesView() {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-2">Department</label>
-                                            <input
-                                                type="text"
-                                                value={editForm.department}
-                                                onChange={e => setEditForm({ ...editForm, department: e.target.value })}
+                                            <label className="block text-sm font-bold text-slate-700 mb-2">Status</label>
+                                            <select
+                                                value={editForm.status}
+                                                onChange={e => setEditForm({ ...editForm, status: e.target.value })}
                                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-slate-900 focus:border-transparent outline-none transition-all"
-                                                required
-                                            />
+                                            >
+                                                <option value="PERMANENT">Permanent</option>
+                                                <option value="PROBATION">Probation</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </>

@@ -23,7 +23,7 @@ async function test() {
         email,
         password: hashed,
         role: 'EMPLOYEE',
-        employee: { create: { fullName: name, position: 'TBD', department: 'TBD' } },
+        employee: { create: { fullName: name, position: 'TBD', status: 'PERMANENT' } },
       },
     });
     console.log('created user', user);

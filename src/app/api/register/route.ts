@@ -51,10 +51,10 @@ export async function POST(req: Request) {
                     create: {
                         fullName: name,
                         position: "TBD",
-                        department: "worker",
-                    }
+                        status: role === 'PROBATION' ? 'PROBATION' : 'PERMANENT',
+                    } as any
                 }
-            },
+            } as any,
         });
 
         // Log activity asynchronously without blocking the response

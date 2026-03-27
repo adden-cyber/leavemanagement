@@ -7,7 +7,7 @@ type Employee = {
     id: string;
     fullName: string;
     position: string;
-    department: string;
+    status: string;
     joinDate: string;
     user: {
         email: string;
@@ -24,7 +24,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
     // Edit form states
     const [fullName, setFullName] = useState('');
     const [position, setPosition] = useState('');
-    const [department, setDepartment] = useState('');
+    const [status, setStatus] = useState('PERMANENT');
     const [joinDate, setJoinDate] = useState('');
 
     useEffect(() => {
@@ -36,7 +36,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                     setEmployee(data);
                     setFullName(data.fullName);
                     setPosition(data.position);
-                    setDepartment(data.department);
+                    setStatus(data.status ?? 'PERMANENT');
                     setJoinDate(data.joinDate ? new Date(data.joinDate).toISOString().split('T')[0] : '');
                 }
             } catch (error) {
@@ -56,13 +56,13 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
             const res = await fetch(`/api/employees/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fullName, position, department, joinDate }),
+                body: JSON.stringify({ fullName, position, status, joinDate }),
             });
             if (res.ok) {
                 setEditing(false);
                 router.refresh(); // Refresh data not actually triggering re-fetch in client component usually w/o router.refresh and server components, but here manual update
                 // manually update local state for immediate feedback
-                setEmployee(prev => prev ? ({ ...prev, fullName, position, department, joinDate }) : null);
+                setEmployee(prev => prev ? ({ ...prev, fullName, position, status, joinDate }) : null);
             }
         } catch (error) {
             console.error(error);
@@ -121,8 +121,11 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                                 <input value={position} onChange={e => setPosition(e.target.value)} className="w-full mt-2 border-gray-200 rounded-md" />
                             </div>
                             <div>
-                                <label className="text-gray-700">Department</label>
-                                <input value={department} onChange={e => setDepartment(e.target.value)} className="w-full mt-2 border-gray-200 rounded-md" />
+                                <label className="text-gray-700">Status</label>
+                                <select value={status} onChange={e => setStatus(e.target.value)} className="w-full mt-2 border-gray-200 rounded-md">
+                                    <option value="PERMANENT">Permanent</option>
+                                    <option value="PROBATION">Probation</option>
+                                </select>
                             </div>
                             <div>
                                 <label className="text-gray-700">Join Date</label>
@@ -149,8 +152,8 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                             <p>{employee.position}</p>
                         </div>
                         <div>
-                            <label className="text-gray-700 font-bold">Department</label>
-                            <p>{employee.department}</p>
+                            <label className="text-gray-700 font-bold">Status</label>
+                            <p>{employee.status}</p>
                         </div>
                         <div>
                             <label className="text-gray-700 font-bold">Join Date</label>

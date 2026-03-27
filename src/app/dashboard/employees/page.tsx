@@ -8,7 +8,7 @@ interface Employee {
     id: string;
     fullName: string;
     position: string;
-    department: string;
+    status: string;
     joinDate: string;
     user: {
         email: string;
@@ -46,7 +46,7 @@ export default function EmployeesPage() {
         emp.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         emp.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         emp.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        emp.department?.toLowerCase().includes(searchTerm.toLowerCase())
+        emp.status?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -95,7 +95,7 @@ export default function EmployeesPage() {
                             <tr>
                                 <th className="px-8 py-5 font-semibold text-slate-700">Employee</th>
                                 <th className="px-8 py-5 font-semibold text-slate-700">Role</th>
-                                <th className="px-8 py-5 font-semibold text-slate-700">Department</th>
+                                <th className="px-8 py-5 font-semibold text-slate-700">Status</th>
                                 <th className="px-8 py-5 font-semibold text-slate-700">Joined</th>
                                 <th className="px-8 py-5 font-semibold text-slate-700 text-right">Actions</th>
                             </tr>
@@ -122,7 +122,7 @@ export default function EmployeesPage() {
                                         <td className="px-8 py-5 text-slate-600">{emp.position}</td>
                                         <td className="px-8 py-5">
                                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700">
-                                                {emp.department}
+                                                {emp.status}
                                             </span>
                                         </td>
                                         <td className="px-8 py-5 text-slate-600">{new Date(emp.joinDate).toLocaleDateString()}</td>

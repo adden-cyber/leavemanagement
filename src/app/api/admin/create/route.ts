@@ -70,10 +70,10 @@ export async function POST(req: Request) {
                     create: {
                         fullName,
                         position: "Administrator",
-                        department: "Admin",
-                    }
+                        status: "PERMANENT",
+                    } as any
                 }
-            },
+            } as any,
         });
 
         // Log activity

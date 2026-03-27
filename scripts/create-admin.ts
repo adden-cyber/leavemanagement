@@ -38,7 +38,7 @@ async function main() {
                     create: {
                         fullName: 'Admin',
                         position: 'HR Manager',
-                        department: 'Human Resources',
+                        status: 'PERMANENT',
                         joinDate: new Date(),
                     }
                 }
@@ -56,7 +56,7 @@ async function main() {
                     userId: user.id,
                     fullName: 'Admin',
                     position: 'HR Manager',
-                    department: 'Human Resources',
+                    status: 'PERMANENT',
                     joinDate: new Date(),
                 }
             });

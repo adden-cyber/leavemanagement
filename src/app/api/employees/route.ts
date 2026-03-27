@@ -16,7 +16,7 @@ export async function GET() {
                 fullName: true,
                 icNo: true,
                 position: true,
-                department: true,
+                status: true,
                 joinDate: true,
                 user: {
                     select: {
@@ -24,7 +24,7 @@ export async function GET() {
                         role: true,
                     }
                 }
-            }
+            } as any
         });
 
         const response = NextResponse.json(employees);
@@ -47,17 +47,23 @@ export async function POST(req: Request) {
             // return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const { fullName, email, position, department, joinDate } = await req.json();
+        const { fullName, email, position, status = 'PERMANENT', joinDate, role = 'EMPLOYEE' } = await req.json();
 
         const bcrypt = require('bcryptjs');
         const hashedPassword = await bcrypt.hash('password123', 10);
+
+        const allowedRoles = ['ADMIN', 'EMPLOYEE', 'PROBATION'];
+        const normalizedRole = allowedRoles.includes(role) ? role : 'EMPLOYEE';
+
+        const allowedStatus = ['PERMANENT', 'PROBATION'];
+        const normalizedStatus = allowedStatus.includes(status) ? status : 'PERMANENT';
 
         const result = await prisma.$transaction(async (tx) => {
             const user = await tx.user.create({
                 data: {
                     email,
                     password: hashedPassword,
-                    role: 'EMPLOYEE',
+                    role: normalizedRole,
                 }
             });
 
@@ -66,9 +72,9 @@ export async function POST(req: Request) {
                     userId: user.id,
                     fullName,
                     position,
-                    department,
+                    status: normalizedStatus,
                     joinDate: new Date(joinDate),
-                }
+                } as any
             });
 
             const oneWeekLater = new Date();

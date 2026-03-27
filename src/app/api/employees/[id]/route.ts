@@ -12,7 +12,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         }
 
         const { id } = await params;
-        const { role, position, department, fullName, icNo } = await req.json();
+        const { role, position, status, fullName, icNo } = await req.json();
 
         // Check if employee exists and verify ownership
         const currentEmployee = await prisma.employee.findUnique({
@@ -35,19 +35,21 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         // Transaction to update both Employee and User models
         const result = await prisma.$transaction(async (tx) => {
             // 1. Update Employee details
-            // Only admin can change position and department
             const dataToUpdate: any = { fullName };
             if (icNo !== undefined) {
                 dataToUpdate.icNo = icNo;
             }
             if (isAdmin) {
                 if (position !== undefined) dataToUpdate.position = position;
-                if (department !== undefined) dataToUpdate.department = department;
+                if (status !== undefined) {
+                    const allowedStatus = ['PERMANENT', 'PROBATION'];
+                    dataToUpdate.status = allowedStatus.includes(status) ? status : 'PERMANENT';
+                }
             }
 
             const employee = await tx.employee.update({
                 where: { id },
-                data: dataToUpdate,
+                data: dataToUpdate as any,
                 include: { user: true }
             });
 
