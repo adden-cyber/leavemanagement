@@ -17,7 +17,7 @@ export default function SettingsView() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
     const [showAdminForm, setShowAdminForm] = useState(false);
-    const [adminFormData, setAdminFormData] = useState({ email: '', password: '', name: '' });
+    const [adminFormData, setAdminFormData] = useState({ username: '', password: '', name: '' });
     const [successMessage, setSuccessMessage] = useState('');
     const [showEditModal, setShowEditModal] = useState(false);
     const [showSystemInfo, setShowSystemInfo] = useState(false);
@@ -242,7 +242,7 @@ export default function SettingsView() {
     const handleCreateAdmin = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!adminFormData.email || !adminFormData.password || !adminFormData.name) {
+        if (!adminFormData.username || !adminFormData.password || !adminFormData.name) {
             alert('Please fill in all fields');
             return;
         }
@@ -258,7 +258,7 @@ export default function SettingsView() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    email: adminFormData.email,
+                    username: adminFormData.username,
                     password: adminFormData.password,
                     fullName: adminFormData.name,
                 }),
@@ -267,7 +267,7 @@ export default function SettingsView() {
             if (res.ok) {
                 setSuccessMessage('successfully created a new admin account! log out to enter the new admin account');
                 setShowAdminForm(false);
-                setAdminFormData({ email: '', password: '', name: '' });
+                setAdminFormData({ username: '', password: '', name: '' });
                 setTimeout(() => setSuccessMessage(''), 5000);
             } else {
                 const data = await res.json();
@@ -465,13 +465,13 @@ export default function SettingsView() {
 
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                    Email
+                                    Username
                                 </label>
                                 <input
-                                    type="email"
-                                    value={adminFormData.email}
-                                    onChange={(e) => setAdminFormData({ ...adminFormData, email: e.target.value })}
-                                    placeholder="Enter email address"
+                                    type="text"
+                                    value={adminFormData.username}
+                                    onChange={(e) => setAdminFormData({ ...adminFormData, username: e.target.value })}
+                                    placeholder="Enter username"
                                     className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#7559e0]"
                                     required
                                 />
