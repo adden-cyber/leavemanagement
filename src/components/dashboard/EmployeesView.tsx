@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useDashboardCache } from '@/lib/DashboardCacheContext';
 import { apiUrl } from '@/lib/api';
@@ -13,6 +14,9 @@ interface Employee {
     position: string;
     status: string;
     joinDate: string;
+    annualLeaveQuota?: number;
+    medicalLeaveQuota?: number;
+    unpaidLeaveQuota?: number;
     user: {
         username: string;
         role: string;
@@ -29,6 +33,7 @@ interface LeaveRequest {
 }
 
 export default function EmployeesView() {
+    const router = useRouter();
     const { data: session, status } = useSession();
     const isAdmin = session?.user?.role === 'ADMIN';
     const { getCache, setCache, clearCache } = useDashboardCache();
@@ -101,7 +106,8 @@ export default function EmployeesView() {
             const res = await fetch(`/api/leave?employeeId=${employeeId}`);
             if (res.ok) {
                 const data = await res.json();
-                setEmployeeLeaves(data);
+                // API returns { leaves, pagination }
+                setEmployeeLeaves(Array.isArray(data.leaves) ? data.leaves : []);
             }
         } catch (error) {
             console.error('Failed to fetch employee leaves', error);
@@ -114,6 +120,19 @@ export default function EmployeesView() {
         setSelectedEmployeeForLeaves(employee);
         await fetchEmployeeLeaves(employee.id);
     };
+
+    const ownEmployee = employees.find(emp => emp.user?.username === session?.user?.name || emp.user?.username === (session?.user as any)?.username || emp.user?.username === session?.user?.email);
+
+    const ownAnnualTaken = employeeLeaves.filter(l => l.status === 'APPROVED' && l.type === 'ANNUAL').length;
+    const ownMedicalTaken = employeeLeaves.filter(l => l.status === 'APPROVED' && l.type === 'MEDICAL').length;
+    const ownUnpaidTaken = employeeLeaves.filter(l => l.status === 'APPROVED' && l.type === 'UNPAID').length;
+
+    useEffect(() => {
+        if (!isAdmin && ownEmployee) {
+            // load current employee's leave info for leave credits view
+            fetchEmployeeLeaves(ownEmployee.id);
+        }
+    }, [isAdmin, ownEmployee?.id]);
 
     const filteredEmployees = employees.filter(emp =>
         emp.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -206,7 +225,7 @@ export default function EmployeesView() {
                     <button
                         onClick={() => fetchEmployees(true)}
                         disabled={loading}
-                        className="px-4 py-2.5 font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Refresh data"
                     >
                         {loading ? 'Refreshing...' : '🔄 Refresh'}
@@ -214,7 +233,7 @@ export default function EmployeesView() {
                     {isAdmin && (
                         <Link
                             href="/dashboard/employees/new"
-                            className="inline-flex items-center justify-center px-6 py-3 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20"
+                            className="inline-flex items-center justify-center px-8 py-4 sm:px-10 sm:py-5 text-base sm:text-lg bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20"
                         >
                             Add Employee
                         </Link>
@@ -352,8 +371,8 @@ export default function EmployeesView() {
                 )}
             </div>
 
-            {/* Employees Table */}
-            <div className="bg-white border border-slate-100 rounded-lg shadow-md overflow-hidden mt-16">
+            {/* Employees Team Table */}
+            <div className="bg-white border border-slate-100 rounded-lg shadow-md overflow-hidden mt-6">
                 <button
                     onClick={() => setShowStaff(!showStaff)}
                     className="w-full flex items-center justify-between p-6 bg-slate-50 hover:bg-slate-100 transition-colors border-b border-slate-100 focus:outline-none"

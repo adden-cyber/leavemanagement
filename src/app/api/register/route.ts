@@ -50,7 +50,7 @@ export async function POST(req: Request) {
                 employee: {
                     create: {
                         fullName: name,
-                        position: "TBD",
+                        position: "Employee",
                         status: role === 'PROBATION' ? 'PROBATION' : 'PERMANENT',
                     } as any
                 }

@@ -18,6 +18,9 @@ export async function GET() {
                 position: true,
                 status: true,
                 joinDate: true,
+                annualLeaveQuota: true,
+                medicalLeaveQuota: true,
+                unpaidLeaveQuota: true,
                 user: {
                     select: {
                         username: true,

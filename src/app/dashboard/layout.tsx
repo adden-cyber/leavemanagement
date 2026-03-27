@@ -12,7 +12,7 @@ export default function DashboardLayout({
                 <Sidebar />
             </Suspense>
 
-            <div className="flex-1 flex flex-col h-full relative p-4 md:p-8 lg:p-12 bg-[#F8F9FA] dark:bg-slate-900 transition-colors">
+            <div className="flex-1 flex flex-col h-full relative p-4 pb-24 md:p-8 md:pb-8 lg:p-12 bg-[#F8F9FA] dark:bg-slate-900 transition-colors">
                 <main className="flex-1 overflow-x-hidden overflow-y-auto bg-transparent flex flex-col items-center">
                     <div className="max-w-4xl w-full bg-transparent p-2">
                         {children}

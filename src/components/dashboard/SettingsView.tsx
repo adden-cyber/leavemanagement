@@ -9,7 +9,6 @@ export default function SettingsView() {
     const { data: session, update: updateSession } = useSession();
     const { clearCache } = useDashboardCache();
     const isAdmin = session?.user?.role === 'ADMIN';
-    const [theme, setTheme] = useState<'light' | 'dark'>('light');
     const [nameInput, setNameInput] = useState<string>('');
     const [icNoInput, setIcNoInput] = useState<string>('');
     const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -21,20 +20,6 @@ export default function SettingsView() {
     const [successMessage, setSuccessMessage] = useState('');
     const [showEditModal, setShowEditModal] = useState(false);
     const [showSystemInfo, setShowSystemInfo] = useState(false);
-
-    // Initialize theme from localStorage or system preference
-    useEffect(() => {
-        const storedTheme = localStorage.getItem('theme');
-        if (storedTheme) {
-            setTheme(storedTheme as 'light' | 'dark');
-            if (storedTheme === 'dark') {
-                document.documentElement.classList.add('dark');
-            }
-        } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            setTheme('dark');
-            document.documentElement.classList.add('dark');
-        }
-    }, []);
 
     // sync name field when session loads
     useEffect(() => {
@@ -94,18 +79,6 @@ export default function SettingsView() {
 
         fetchProfile();
     }, [showEditModal, session?.user?.email]);
-
-    const toggleTheme = () => {
-        const newTheme = theme === 'light' ? 'dark' : 'light';
-        setTheme(newTheme);
-        localStorage.setItem('theme', newTheme);
-
-        if (newTheme === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    };
 
     const handleDeleteAccount = async () => {
         if (!session?.user?.id) {
@@ -298,7 +271,7 @@ export default function SettingsView() {
                     <div className="text-right">
                         <button
                             onClick={() => setShowEditModal(true)}
-                            className="px-4 py-2 text-base bg-[#7559e0] text-white font-bold rounded-lg hover:bg-[#6448cc] transition-colors disabled:opacity-50"
+                            className="px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg bg-[#7559e0] text-white font-bold rounded-lg hover:bg-[#6448cc] transition-colors disabled:opacity-50"
                         >
                             Edit Profile
                         </button>
@@ -382,7 +355,7 @@ export default function SettingsView() {
                             <button
                                 onClick={handleSaveProfile}
                                 disabled={isSavingProfile}
-                                className="flex-1 px-4 py-2 bg-[#7559e0] text-white font-bold rounded-xl hover:bg-[#6448cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg bg-[#7559e0] text-white font-bold rounded-xl hover:bg-[#6448cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSavingProfile ? 'Saving...' : 'Save'}
                             </button>
@@ -392,7 +365,7 @@ export default function SettingsView() {
                                     setProfileError('');
                                 }}
                                 disabled={isSavingProfile}
-                                className="flex-1 px-4 py-2 bg-slate-200 text-slate-800 font-bold rounded-xl hover:bg-slate-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                                className="flex-1 px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg bg-slate-200 text-slate-800 font-bold rounded-xl hover:bg-slate-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
                             >
                                 Cancel
                             </button>
@@ -400,27 +373,6 @@ export default function SettingsView() {
                     </div>
                 </div>
             )}
-
-            {/* Appearance Section */}
-            <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border-2 border-slate-200 dark:border-slate-600 shadow-sm transition-colors">
-                <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                        <span className="text-2xl">🎨</span>
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Light/Dark Mode</h3>
-                    </div>
-                    <button
-                        onClick={toggleTheme}
-                        className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#7559e0] focus:ring-offset-2 ${theme === 'dark' ? 'bg-[#7559e0]' : 'bg-slate-300'
-                            }`}
-                        aria-pressed={theme === 'dark'}
-                    >
-                        <span
-                            className={`inline-block h-6 w-6 transform rounded-full bg-white transition shadow-sm ${theme === 'dark' ? 'translate-x-7' : 'translate-x-1'
-                                }`}
-                        />
-                    </button>
-                </div>
-            </div>
 
             {/* Success Message */}
             {successMessage && (
@@ -440,7 +392,7 @@ export default function SettingsView() {
                         {!showAdminForm && (
                             <button
                                 onClick={() => setShowAdminForm(true)}
-                                className="px-4 py-2 bg-[#7559e0] text-white font-bold rounded-lg hover:bg-[#6448cc] transition-colors focus:ring-2 focus:ring-[#7559e0] focus:outline-none dark:bg-[#7559e0] dark:hover:bg-[#6448cc]"
+                                className="px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg bg-[#7559e0] text-white font-bold rounded-lg hover:bg-[#6448cc] transition-colors focus:ring-2 focus:ring-[#7559e0] focus:outline-none dark:bg-[#7559e0] dark:hover:bg-[#6448cc]"
                             >
                                 Create New Admin Account
                             </button>
@@ -495,7 +447,7 @@ export default function SettingsView() {
                                 <button
                                     type="submit"
                                     disabled={isCreatingAdmin}
-                                    className="px-5 py-2.5 bg-[#7559e0] text-white font-bold rounded-xl hover:bg-[#6448cc] transition-colors focus:ring-2 focus:ring-[#7559e0] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-8 py-3 sm:px-10 sm:py-4 text-base sm:text-lg bg-[#7559e0] text-white font-bold rounded-xl hover:bg-[#6448cc] transition-colors focus:ring-2 focus:ring-[#7559e0] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isCreatingAdmin ? 'Creating...' : 'Create Admin'}
                                 </button>
@@ -505,7 +457,7 @@ export default function SettingsView() {
                                         setShowAdminForm(false);
                                         setAdminFormData({ username: '', password: '', name: '' });
                                     }}
-                                    className="px-5 py-2.5 bg-slate-200 text-slate-800 font-bold rounded-xl hover:bg-slate-300 transition-colors focus:ring-2 focus:ring-slate-400 focus:outline-none dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                                    className="px-8 py-3 sm:px-10 sm:py-4 text-base sm:text-lg bg-slate-200 text-slate-800 font-bold rounded-xl hover:bg-slate-300 transition-colors focus:ring-2 focus:ring-slate-400 focus:outline-none dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
                                 >
                                     Cancel
                                 </button>
@@ -577,7 +529,7 @@ export default function SettingsView() {
                     <button
                         onClick={handleDeleteAccount}
                         disabled={isDeleting}
-                        className="whitespace-nowrap px-5 py-2.5 bg-red-50 text-red-600 border border-red-200 font-bold rounded-xl hover:bg-red-100 hover:border-red-300 transition-all focus:ring-2 focus:ring-red-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed dark:bg-red-500/10 dark:border-red-500/20 dark:hover:bg-red-500/20"
+                        className="whitespace-nowrap px-8 py-3 sm:px-10 sm:py-4 text-base sm:text-lg bg-red-50 text-red-600 border border-red-200 font-bold rounded-xl hover:bg-red-100 hover:border-red-300 transition-all focus:ring-2 focus:ring-red-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed dark:bg-red-500/10 dark:border-red-500/20 dark:hover:bg-red-500/20"
                     >
                         {isDeleting ? 'Deleting...' : 'Delete Account'}
                     </button>

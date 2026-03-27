@@ -9,10 +9,10 @@ import EmployeesView from '@/components/dashboard/EmployeesView';
 import LeaveView from '@/components/dashboard/LeaveView';
 import LeaveHistoryView from '@/components/dashboard/LeaveHistoryView';
 import ActivityView from '@/components/dashboard/ActivityView';
-
 import SettingsView from '@/components/dashboard/SettingsView';
-
 import ProfileSettingsView from '@/components/dashboard/ProfileSettingsView';
+import LeaveCreditsView from '@/components/dashboard/LeaveCreditsView';
+import LeaveManagementView from '@/components/dashboard/LeaveManagementView';
 
 function DashboardContent() {
     const searchParams = useSearchParams();
@@ -37,6 +37,8 @@ function DashboardContent() {
                 {view === 'employees' && <EmployeesView />}
                 {view === 'leave' && <LeaveView />}
                 {view === 'leave-history' && <LeaveHistoryView />}
+                {isAdmin && view === 'leave-management' && <LeaveManagementView />}
+                {!isAdmin && view === 'leave-credits' && <LeaveCreditsView />}
 
                 {view === 'settings' && <SettingsView />}
                 {view === 'profile' && <ProfileSettingsView />}

@@ -17,18 +17,10 @@ export async function GET(req: Request) {
         const statusFilter = searchParams.get('status'); // Optional status filter
 
         let whereClause: any = {};
-        
-        if (session.user.role !== 'ADMIN') {
-            // Non-admin users can only access their own leaves
-            const employee = await prisma.employee.findUnique({
-                where: { userId: session.user.id }
-            });
-            if (!employee) {
-                return NextResponse.json({ message: "Employee profile not found" }, { status: 404 });
-            }
-            whereClause = { employeeId: employee.id };
-        } else if (employeeIdParam) {
-            // Admin can access specific employee's leaves
+
+        // All authenticated users can query any employee's leaves.
+        // If an employeeId is provided, use that; otherwise return all leaves.
+        if (employeeIdParam) {
             whereClause = { employeeId: employeeIdParam };
         }
 

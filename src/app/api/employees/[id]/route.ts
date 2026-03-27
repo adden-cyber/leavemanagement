@@ -3,6 +3,30 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
+
+        const { id } = await params;
+        const employee = await prisma.employee.findUnique({
+            where: { id },
+            include: { user: { select: { username: true, role: true } } }
+        });
+
+        if (!employee) {
+            return NextResponse.json({ message: "Employee not found" }, { status: 404 });
+        }
+
+        return NextResponse.json(employee);
+    } catch (error) {
+        console.error("Failed to fetch employee:", error);
+        return NextResponse.json({ message: "Error fetching employee" }, { status: 500 });
+    }
+}
+
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await getServerSession(authOptions);
@@ -12,7 +36,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         }
 
         const { id } = await params;
-        const { role, position, status, fullName, icNo } = await req.json();
+        const { role, position, status, fullName, icNo, annualLeaveQuota, medicalLeaveQuota, unpaidLeaveQuota } = await req.json();
 
         // Check if employee exists and verify ownership
         const currentEmployee = await prisma.employee.findUnique({
@@ -46,6 +70,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
                     const allowedStatus = ['PERMANENT', 'PROBATION'];
                     dataToUpdate.status = allowedStatus.includes(status) ? status : 'PERMANENT';
                 }
+                if (annualLeaveQuota !== undefined) dataToUpdate.annualLeaveQuota = Math.max(0, parseInt(String(annualLeaveQuota), 10) || 0);
+                if (medicalLeaveQuota !== undefined) dataToUpdate.medicalLeaveQuota = Math.max(0, parseInt(String(medicalLeaveQuota), 10) || 0);
+                if (unpaidLeaveQuota !== undefined) dataToUpdate.unpaidLeaveQuota = Math.max(0, parseInt(String(unpaidLeaveQuota), 10) || 0);
             }
 
             const employee = await tx.employee.update({

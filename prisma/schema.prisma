@@ -31,6 +31,9 @@ model Employee {
   position         String
   status           String         @default("PERMANENT") // PERMANENT, PROBATION
   joinDate         DateTime       @default(now())
+  annualLeaveQuota  Int           @default(14)
+  medicalLeaveQuota Int           @default(14)
+  unpaidLeaveQuota  Int           @default(10)
   attendanceRecord Attendance[]
   leaveRequests    LeaveRequest[]
   salary           Salary?
