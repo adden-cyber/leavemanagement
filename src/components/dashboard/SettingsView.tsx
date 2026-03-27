@@ -503,7 +503,7 @@ export default function SettingsView() {
                                     type="button"
                                     onClick={() => {
                                         setShowAdminForm(false);
-                                        setAdminFormData({ email: '', password: '', name: '' });
+                                        setAdminFormData({ username: '', password: '', name: '' });
                                     }}
                                     className="px-5 py-2.5 bg-slate-200 text-slate-800 font-bold rounded-xl hover:bg-slate-300 transition-colors focus:ring-2 focus:ring-slate-400 focus:outline-none dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
                                 >
