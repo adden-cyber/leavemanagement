@@ -149,7 +149,7 @@ const Sidebar = () => {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className={`snap-center flex-shrink-0 min-w-[33%] sm:min-w-[32%] px-2 py-2 rounded-lg text-center transition ${isActive ? 'bg-white text-[#2563eb]' : 'text-blue-100 hover:bg-white/20 hover:text-white'}`}
+                                className={`snap-start flex-shrink-0 min-w-[33%] sm:min-w-[32%] px-2 py-2 rounded-lg text-center transition ${isActive ? 'bg-white text-[#2563eb]' : 'text-blue-100 hover:bg-white/20 hover:text-white'}`}
                             >
                                 <div className="flex flex-col items-center justify-center gap-1">
                                     <span className="text-base">{item.icon()}</span>
