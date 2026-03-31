@@ -46,7 +46,7 @@ export async function GET(req: Request) {
                     createdAt: true,
                     updatedAt: true,
                     employee: {
-                        select: { fullName: true, icNo: true }
+                        select: { fullName: true }
                     }
                 },
                 orderBy: { createdAt: 'desc' },
@@ -87,16 +87,13 @@ export async function POST(req: Request) {
             return NextResponse.json({ message: "Employee profile not found" }, { status: 404 });
         }
 
-        const { startDate, endDate, reason, type, icNo, name } = await req.json();
+        const { startDate, endDate, reason, type, name } = await req.json();
 
         // Update employee details if provided
-        if (icNo || name) {
+        if (name) {
             await prisma.employee.update({
                 where: { id: employee.id },
-                data: {
-                    ...(icNo && { icNo }),
-                    ...(name && { fullName: name })
-                }
+                data: { fullName: name }
             });
         }
 

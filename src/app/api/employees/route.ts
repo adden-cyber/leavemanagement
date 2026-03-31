@@ -31,9 +31,7 @@ export async function GET() {
             } as any
         });
 
-        const response = NextResponse.json(employees);
-        response.headers.set('Cache-Control', 'private, max-age=300');
-        return response;
+        return NextResponse.json(employees);
     } catch (error) {
         console.error('Error fetching employees:', error);
         return NextResponse.json(

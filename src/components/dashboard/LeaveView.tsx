@@ -433,7 +433,6 @@ export default function LeaveView() {
                         <thead className="bg-slate-50/80 border-b border-slate-100">
                             <tr>
                                 <th className="px-6 py-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Employee</th>
-                                <th className="px-6 py-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">IC No</th>
                                 <th className="px-6 py-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Duration</th>
                                 <th className="px-6 py-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Type</th>
                                 <th className="px-6 py-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Reason</th>
@@ -459,9 +458,6 @@ export default function LeaveView() {
                                     <tr key={leave.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="font-semibold text-slate-900">{leave.employee.fullName}</div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="text-sm text-slate-600">{leave.employee.icNo || '-'}</div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col gap-1 text-sm">

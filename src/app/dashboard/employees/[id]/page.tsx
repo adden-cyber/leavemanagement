@@ -141,6 +141,8 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
             if (res.ok) {
                 const updated = await res.json();
                 setEmployee(updated);
+                setQuotaForm({ leaveQuota: updated.leaveQuota ?? quotaForm.leaveQuota });
+                router.refresh();
                 setMessage('Leave quotas updated successfully');
             } else {
                 const err = await res.json();

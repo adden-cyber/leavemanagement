@@ -25,7 +25,6 @@ export default function LeavePage() {
     const [endDate, setEndDate] = useState('');
     const [reason, setReason] = useState('');
     const [leaveType, setLeaveType] = useState('ANNUAL');
-    const [icNo, setIcNo] = useState('');
     const [isLeaveTypeExpanded, setIsLeaveTypeExpanded] = useState(false);
 
     useEffect(() => {
@@ -55,14 +54,13 @@ export default function LeavePage() {
             const res = await fetch('/api/leave', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ startDate, endDate, reason, type: leaveType, icNo }),
+                body: JSON.stringify({ startDate, endDate, reason, type: leaveType }),
             });
             if (res.ok) {
                 setRefresh(prev => prev + 1);
                 setStartDate('');
                 setEndDate('');
                 setReason('');
-                setIcNo('');
                 setLeaveType('ANNUAL');
                 alert("Leave applied successfully!");
             } else {
@@ -122,17 +120,6 @@ export default function LeavePage() {
             {/* Application Form */}
             <div className={`bg-white p-10 md:p-14 rounded-lg border border-slate-100 shadow-xl shadow-slate-200/50 ${formContainerMaxWidth} mx-auto backdrop-blur-sm bg-white/90`}>
                 <form onSubmit={handleSubmit} className="space-y-10">
-                    <div className="space-y-3">
-                        <label className="block text-sm font-bold text-slate-700 tracking-wide">IC NUMBER</label>
-                        <input
-                            type="text"
-                            value={icNo}
-                            onChange={e => setIcNo(e.target.value)}
-                            required
-                            placeholder="e.g. 901010-10-1234"
-                            className="w-full px-6 py-4 border-0 bg-white rounded-lg text-base text-slate-900 font-medium shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all placeholder:text-slate-300"
-                        />
-                    </div>
 
                     <div className="space-y-4">
                         <label className="block text-sm font-bold text-slate-700 tracking-wide">LEAVE TYPE</label>
