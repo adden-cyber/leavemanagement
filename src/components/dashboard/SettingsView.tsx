@@ -535,6 +535,21 @@ export default function SettingsView() {
                     </button>
                 </div>
             </div>
+
+            {/* Mobile Logout Section */}
+            <div className="sm:hidden bg-white dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-600 shadow-sm transition-colors">
+                <div className="flex items-center gap-3 mb-4">
+                    <span className="text-2xl">🚪</span>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Sign Out</h3>
+                </div>
+                
+                <button
+                    onClick={() => signOut()}
+                    className="w-full px-8 py-4 text-lg bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700"
+                >
+                    Sign Out
+                </button>
+            </div>
         </div>
     );
 }
