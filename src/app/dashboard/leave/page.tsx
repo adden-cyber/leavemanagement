@@ -196,7 +196,7 @@ export default function LeavePage() {
                     </div>
 
                     <div className="flex justify-end pt-4">
-                        <button type="submit" className="px-10 py-5 bg-slate-900 text-white text-lg font-bold rounded-lg hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 active:scale-[0.98] w-full md:w-auto">
+                        <button type="submit" className="px-14 py-7 bg-slate-900 text-white text-xl font-bold rounded-lg hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 active:scale-[0.98] w-full md:w-auto">
                             Submit Application
                         </button>
                     </div>
