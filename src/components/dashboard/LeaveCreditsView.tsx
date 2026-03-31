@@ -50,6 +50,13 @@ export default function LeaveCreditsView() {
                 );
 
                 if (currentEmp) {
+                    if (currentEmp.user?.role === 'ADMIN') {
+                        setError('Admin accounts are exempt from leave credits; use leave management instead.');
+                        setEmployee(currentEmp);
+                        setLeaves([]);
+                        return;
+                    }
+
                     setEmployee(currentEmp);
 
                     // Fetch leave history

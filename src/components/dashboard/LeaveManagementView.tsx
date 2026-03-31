@@ -48,6 +48,9 @@ export default function LeaveManagementView() {
         emp.position.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Exclude admins from leave management listing.
+    const managedEmployees = filteredEmployees.filter(emp => (emp.user?.role ?? 'EMPLOYEE').toUpperCase() !== 'ADMIN');
+
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[500px]">
@@ -86,7 +89,7 @@ export default function LeaveManagementView() {
             </div>
 
             {/* Employee Cards Grid */}
-            {filteredEmployees.length === 0 ? (
+            {managedEmployees.length === 0 ? (
                 <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-12 text-center border border-gray-200 dark:border-slate-700">
                     <p className="text-gray-500 dark:text-gray-400">
                         {employees.length === 0 ? 'No employees found' : 'No matching employees'}
@@ -94,7 +97,7 @@ export default function LeaveManagementView() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredEmployees.map((employee) => (
+                    {managedEmployees.map((employee) => (
                         <div
                             key={employee.id}
                             onClick={() => router.push(`/dashboard/employees/${employee.id}`)}
@@ -130,19 +133,19 @@ export default function LeaveManagementView() {
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm text-gray-600 dark:text-gray-400">Annual Leave</span>
                                     <span className="font-bold text-blue-600 dark:text-blue-400">
-                                        {employee.annualLeaveQuota} days
+                                        {employee.user?.role === 'ADMIN' ? 'N/A' : `${employee.annualLeaveQuota} days`}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm text-gray-600 dark:text-gray-400">Medical Leave</span>
                                     <span className="font-bold text-green-600 dark:text-green-400">
-                                        {employee.medicalLeaveQuota} days
+                                        {employee.user?.role === 'ADMIN' ? 'N/A' : `${employee.medicalLeaveQuota} days`}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm text-gray-600 dark:text-gray-400">Unpaid Leave</span>
                                     <span className="font-bold text-red-600 dark:text-red-400">
-                                        {employee.unpaidLeaveQuota} days
+                                        {employee.user?.role === 'ADMIN' ? 'N/A' : `${employee.unpaidLeaveQuota} days`}
                                     </span>
                                 </div>
                             </div>

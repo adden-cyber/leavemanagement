@@ -61,6 +61,8 @@ export async function POST(req: Request) {
         const allowedStatus = ['PERMANENT', 'PROBATION'];
         const normalizedStatus = allowedStatus.includes(status) ? status : 'PERMANENT';
 
+        const isAdminRole = normalizedRole === 'ADMIN';
+
         const result = await prisma.$transaction(async (tx) => {
             const user = await tx.user.create({
                 data: {
@@ -77,6 +79,10 @@ export async function POST(req: Request) {
                     position,
                     status: normalizedStatus,
                     joinDate: new Date(joinDate),
+                    // Admin accounts are not subject to personal leave quotas
+                    annualLeaveQuota: isAdminRole ? 0 : 14,
+                    medicalLeaveQuota: isAdminRole ? 0 : 14,
+                    unpaidLeaveQuota: isAdminRole ? 0 : 10,
                 } as any
             });
 

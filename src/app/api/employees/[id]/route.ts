@@ -57,6 +57,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
+        // Determine the employee role after update (keep existing if not provided)
+        const targetRole = role ?? currentEmployee.user?.role ?? 'EMPLOYEE';
+        const targetIsAdmin = targetRole === 'ADMIN';
+
         // Transaction to update both Employee and User models
         const result = await prisma.$transaction(async (tx) => {
             // 1. Update Employee details
@@ -64,15 +68,24 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
             if (icNo !== undefined) {
                 dataToUpdate.icNo = icNo;
             }
+
             if (isAdmin) {
                 if (position !== undefined) dataToUpdate.position = position;
                 if (status !== undefined) {
                     const allowedStatus = ['PERMANENT', 'PROBATION'];
                     dataToUpdate.status = allowedStatus.includes(status) ? status : 'PERMANENT';
                 }
-                if (annualLeaveQuota !== undefined) dataToUpdate.annualLeaveQuota = Math.max(0, parseInt(String(annualLeaveQuota), 10) || 0);
-                if (medicalLeaveQuota !== undefined) dataToUpdate.medicalLeaveQuota = Math.max(0, parseInt(String(medicalLeaveQuota), 10) || 0);
-                if (unpaidLeaveQuota !== undefined) dataToUpdate.unpaidLeaveQuota = Math.max(0, parseInt(String(unpaidLeaveQuota), 10) || 0);
+
+                if (targetIsAdmin) {
+                    // Admin users do not consume leave quotas
+                    dataToUpdate.annualLeaveQuota = 0;
+                    dataToUpdate.medicalLeaveQuota = 0;
+                    dataToUpdate.unpaidLeaveQuota = 0;
+                } else {
+                    if (annualLeaveQuota !== undefined) dataToUpdate.annualLeaveQuota = Math.max(0, parseInt(String(annualLeaveQuota), 10) || 0);
+                    if (medicalLeaveQuota !== undefined) dataToUpdate.medicalLeaveQuota = Math.max(0, parseInt(String(medicalLeaveQuota), 10) || 0);
+                    if (unpaidLeaveQuota !== undefined) dataToUpdate.unpaidLeaveQuota = Math.max(0, parseInt(String(unpaidLeaveQuota), 10) || 0);
+                }
             }
 
             const employee = await tx.employee.update({

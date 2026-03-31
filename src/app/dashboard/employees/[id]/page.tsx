@@ -33,6 +33,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
     const isAdmin = session?.user?.role === 'ADMIN';
 
     const [employee, setEmployee] = useState<Employee | null>(null);
+    const targetIsAdmin = employee?.user?.role === 'ADMIN';
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
 
@@ -244,25 +245,25 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <div className="p-4 border rounded-lg">
                         <p className="text-sm text-slate-500">Annual quota</p>
-                        <p className="text-2xl font-bold">{employee.annualLeaveQuota ?? quotaForm.annualLeaveQuota}</p>
-                        <p className="text-xs text-slate-500">Taken: {leaveUsage.annual}</p>
-                        <p className="text-xs text-slate-500">Remaining: {(employee.annualLeaveQuota ?? quotaForm.annualLeaveQuota) - leaveUsage.annual}</p>
+                        <p className="text-2xl font-bold">{targetIsAdmin ? 'N/A' : `${employee.annualLeaveQuota ?? quotaForm.annualLeaveQuota}`}</p>
+                        <p className="text-xs text-slate-500">Taken: {targetIsAdmin ? 'N/A' : leaveUsage.annual}</p>
+                        <p className="text-xs text-slate-500">Remaining: {targetIsAdmin ? 'N/A' : Math.max(0, (employee.annualLeaveQuota ?? quotaForm.annualLeaveQuota) - leaveUsage.annual)}</p>
                     </div>
                     <div className="p-4 border rounded-lg">
                         <p className="text-sm text-slate-500">Medical quota</p>
-                        <p className="text-2xl font-bold">{employee.medicalLeaveQuota ?? quotaForm.medicalLeaveQuota}</p>
-                        <p className="text-xs text-slate-500">Taken: {leaveUsage.medical}</p>
-                        <p className="text-xs text-slate-500">Remaining: {(employee.medicalLeaveQuota ?? quotaForm.medicalLeaveQuota) - leaveUsage.medical}</p>
+                        <p className="text-2xl font-bold">{targetIsAdmin ? 'N/A' : `${employee.medicalLeaveQuota ?? quotaForm.medicalLeaveQuota}`}</p>
+                        <p className="text-xs text-slate-500">Taken: {targetIsAdmin ? 'N/A' : leaveUsage.medical}</p>
+                        <p className="text-xs text-slate-500">Remaining: {targetIsAdmin ? 'N/A' : Math.max(0, (employee.medicalLeaveQuota ?? quotaForm.medicalLeaveQuota) - leaveUsage.medical)}</p>
                     </div>
                     <div className="p-4 border rounded-lg">
                         <p className="text-sm text-slate-500">Unpaid quota</p>
-                        <p className="text-2xl font-bold">{employee.unpaidLeaveQuota ?? quotaForm.unpaidLeaveQuota}</p>
-                        <p className="text-xs text-slate-500">Taken: {leaveUsage.unpaid}</p>
-                        <p className="text-xs text-slate-500">Remaining: {(employee.unpaidLeaveQuota ?? quotaForm.unpaidLeaveQuota) - leaveUsage.unpaid}</p>
+                        <p className="text-2xl font-bold">{targetIsAdmin ? 'N/A' : `${employee.unpaidLeaveQuota ?? quotaForm.unpaidLeaveQuota}`}</p>
+                        <p className="text-xs text-slate-500">Taken: {targetIsAdmin ? 'N/A' : leaveUsage.unpaid}</p>
+                        <p className="text-xs text-slate-500">Remaining: {targetIsAdmin ? 'N/A' : Math.max(0, (employee.unpaidLeaveQuota ?? quotaForm.unpaidLeaveQuota) - leaveUsage.unpaid)}</p>
                     </div>
                 </div>
 
-                {isAdmin && (
+                {isAdmin && !targetIsAdmin && (
                     <div className="mt-6 border-t pt-5">
                         <h4 className="font-semibold mb-3">Adjust leave quotas</h4>
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -283,6 +284,13 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                             <button onClick={handleUpdateQuotas} disabled={updatingQuotas} className="px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg rounded-md bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50">{updatingQuotas ? 'Saving...' : 'Save quotas'}</button>
                             {message && <p className="text-sm text-green-600">{message}</p>}
                         </div>
+                    </div>
+                )}
+
+                {isAdmin && targetIsAdmin && (
+                    <div className="mt-6 border-t pt-5">
+                        <h4 className="font-semibold mb-3">Leave Quota Exempt (Admin)</h4>
+                        <p className="text-sm text-slate-600">Admin accounts do not have personal leave quotas and are only used for employee leave management.</p>
                     </div>
                 )}
             </div>
