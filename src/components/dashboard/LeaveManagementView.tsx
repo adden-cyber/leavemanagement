@@ -8,6 +8,7 @@ interface Employee {
     fullName: string;
     position: string;
     status: string;
+    leaveQuota: number;
     annualLeaveQuota: number;
     medicalLeaveQuota: number;
     unpaidLeaveQuota: number;
@@ -29,7 +30,7 @@ export default function LeaveManagementView() {
             try {
                 const response = await fetch('/api/employees');
                 const data = await response.json();
-                setEmployees(data);
+                setEmployees(Array.isArray(data) ? data : []);
             } catch (err) {
                 setError('Failed to load employees');
                 console.error(err);
@@ -41,12 +42,14 @@ export default function LeaveManagementView() {
         loadEmployees();
     }, []);
 
-    const filteredEmployees = employees.filter(emp =>
-        emp.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        emp.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        emp.user?.role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        emp.position.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredEmployees = Array.isArray(employees)
+        ? employees.filter(emp =>
+            emp.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            emp.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            emp.user?.role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            emp.position.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        : [];
 
     // Exclude admins from leave management listing.
     const managedEmployees = filteredEmployees.filter(emp => (emp.user?.role ?? 'EMPLOYEE').toUpperCase() !== 'ADMIN');
@@ -131,23 +134,12 @@ export default function LeaveManagementView() {
                             {/* Leave Quotas */}
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-sm text-gray-600 dark:text-gray-400">Annual Leave</span>
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">Total Leave Quota</span>
                                     <span className="font-bold text-blue-600 dark:text-blue-400">
-                                        {employee.user?.role === 'ADMIN' ? 'N/A' : `${employee.annualLeaveQuota} days`}
+                                        {employee.user?.role === 'ADMIN' ? 'N/A' : `${employee.leaveQuota} days`}
                                     </span>
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm text-gray-600 dark:text-gray-400">Medical Leave</span>
-                                    <span className="font-bold text-green-600 dark:text-green-400">
-                                        {employee.user?.role === 'ADMIN' ? 'N/A' : `${employee.medicalLeaveQuota} days`}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm text-gray-600 dark:text-gray-400">Unpaid Leave</span>
-                                    <span className="font-bold text-red-600 dark:text-red-400">
-                                        {employee.user?.role === 'ADMIN' ? 'N/A' : `${employee.unpaidLeaveQuota} days`}
-                                    </span>
-                                </div>
+                                <p className="text-xs text-slate-500">Leave type usage is still recorded in leave requests; admins can view details when opening an employee profile.</p>
                             </div>
 
                             {/* Click to Edit Note */}

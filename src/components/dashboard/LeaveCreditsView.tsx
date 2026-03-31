@@ -9,6 +9,7 @@ interface Employee {
     username?: string;
     position: string;
     status: string;
+    leaveQuota: number;
     annualLeaveQuota: number;
     medicalLeaveQuota: number;
     unpaidLeaveQuota: number;
@@ -98,6 +99,10 @@ export default function LeaveCreditsView() {
     const medicalTaken = leaves.filter(l => l.type === 'MEDICAL' && l.status === 'APPROVED').length;
     const unpaidTaken = leaves.filter(l => l.type === 'UNPAID' && l.status === 'APPROVED').length;
 
+    const totalTaken = annualTaken + medicalTaken + unpaidTaken;
+    const totalQuota = employee.leaveQuota || (employee.annualLeaveQuota + employee.medicalLeaveQuota + employee.unpaidLeaveQuota);
+    const remaining = Math.max(0, totalQuota - totalTaken);
+
     return (
         <div className="space-y-6">
             {/* Page Header */}
@@ -137,94 +142,33 @@ export default function LeaveCreditsView() {
             </div>
 
             {/* Leave Quota Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Annual Leave */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-slate-700">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Annual Leave</h3>
-                        <span className="text-2xl">📅</span>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Shared leave quota</h3>
+                        <span className="text-2xl">🧩</span>
                     </div>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-600 dark:text-gray-400">Total Quota</span>
-                            <span className="font-bold text-gray-900 dark:text-white">{employee.annualLeaveQuota} days</span>
+                            <span className="font-bold text-gray-900 dark:text-white">{totalQuota} days</span>
                         </div>
                         <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">Used</span>
-                            <span className="font-bold text-orange-600 dark:text-orange-400">{annualTaken} days</span>
-                        </div>
-                        <div className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div 
-                                className="h-full bg-blue-500 rounded-full"
-                                style={{ width: `${(annualTaken / employee.annualLeaveQuota) * 100}%` }}
-                            />
+                            <span className="text-sm text-gray-600 dark:text-gray-400">Used (all types)</span>
+                            <span className="font-bold text-orange-600 dark:text-orange-400">{totalTaken} days</span>
                         </div>
                         <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-slate-700">
                             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Remaining</span>
-                            <span className="font-bold text-green-600 dark:text-green-400">
-                                {Math.max(0, employee.annualLeaveQuota - annualTaken)} days
-                            </span>
+                            <span className="font-bold text-green-600 dark:text-green-400">{remaining} days</span>
                         </div>
                     </div>
                 </div>
-
-                {/* Medical Leave */}
                 <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-slate-700">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Medical Leave</h3>
-                        <span className="text-2xl">🏥</span>
-                    </div>
-                    <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">Total Quota</span>
-                            <span className="font-bold text-gray-900 dark:text-white">{employee.medicalLeaveQuota} days</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">Used</span>
-                            <span className="font-bold text-orange-600 dark:text-orange-400">{medicalTaken} days</span>
-                        </div>
-                        <div className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div 
-                                className="h-full bg-green-500 rounded-full"
-                                style={{ width: `${(medicalTaken / employee.medicalLeaveQuota) * 100}%` }}
-                            />
-                        </div>
-                        <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-slate-700">
-                            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Remaining</span>
-                            <span className="font-bold text-green-600 dark:text-green-400">
-                                {Math.max(0, employee.medicalLeaveQuota - medicalTaken)} days
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Unpaid Leave */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-slate-700">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Unpaid Leave</h3>
-                        <span className="text-2xl">⏸️</span>
-                    </div>
-                    <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">Total Quota</span>
-                            <span className="font-bold text-gray-900 dark:text-white">{employee.unpaidLeaveQuota} days</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">Used</span>
-                            <span className="font-bold text-orange-600 dark:text-orange-400">{unpaidTaken} days</span>
-                        </div>
-                        <div className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div 
-                                className="h-full bg-red-500 rounded-full"
-                                style={{ width: `${(unpaidTaken / employee.unpaidLeaveQuota) * 100}%` }}
-                            />
-                        </div>
-                        <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-slate-700">
-                            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Remaining</span>
-                            <span className="font-bold text-green-600 dark:text-green-400">
-                                {Math.max(0, employee.unpaidLeaveQuota - unpaidTaken)} days
-                            </span>
-                        </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recorded leave by type</h3>
+                    <div className="space-y-2">
+                        <p className="text-sm text-slate-500">Annual: {annualTaken} days</p>
+                        <p className="text-sm text-slate-500">Medical: {medicalTaken} days</p>
+                        <p className="text-sm text-slate-500">Unpaid: {unpaidTaken} days</p>
                     </div>
                 </div>
             </div>

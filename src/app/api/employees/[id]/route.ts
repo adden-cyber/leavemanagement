@@ -36,7 +36,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         }
 
         const { id } = await params;
-        const { role, position, status, fullName, icNo, annualLeaveQuota, medicalLeaveQuota, unpaidLeaveQuota } = await req.json();
+        const { role, position, status, fullName, icNo, leaveQuota } = await req.json();
 
         // Check if employee exists and verify ownership
         const currentEmployee = await prisma.employee.findUnique({
@@ -78,13 +78,19 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
                 if (targetIsAdmin) {
                     // Admin users do not consume leave quotas
+                    dataToUpdate.leaveQuota = 0;
                     dataToUpdate.annualLeaveQuota = 0;
                     dataToUpdate.medicalLeaveQuota = 0;
                     dataToUpdate.unpaidLeaveQuota = 0;
                 } else {
-                    if (annualLeaveQuota !== undefined) dataToUpdate.annualLeaveQuota = Math.max(0, parseInt(String(annualLeaveQuota), 10) || 0);
-                    if (medicalLeaveQuota !== undefined) dataToUpdate.medicalLeaveQuota = Math.max(0, parseInt(String(medicalLeaveQuota), 10) || 0);
-                    if (unpaidLeaveQuota !== undefined) dataToUpdate.unpaidLeaveQuota = Math.max(0, parseInt(String(unpaidLeaveQuota), 10) || 0);
+                    if (leaveQuota !== undefined) {
+                        const safeQuota = Math.max(0, parseInt(String(leaveQuota), 10) || 0);
+                        dataToUpdate.leaveQuota = safeQuota;
+                        // Keep the old fields aligned for compatibility
+                        dataToUpdate.annualLeaveQuota = safeQuota;
+                        dataToUpdate.medicalLeaveQuota = safeQuota;
+                        dataToUpdate.unpaidLeaveQuota = safeQuota;
+                    }
                 }
             }
 

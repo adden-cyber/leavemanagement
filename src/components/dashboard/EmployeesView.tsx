@@ -14,6 +14,7 @@ interface Employee {
     position: string;
     status: string;
     joinDate: string;
+    leaveQuota?: number;
     annualLeaveQuota?: number;
     medicalLeaveQuota?: number;
     unpaidLeaveQuota?: number;

@@ -11,6 +11,7 @@ type Employee = {
     status: string;
     joinDate: string;
     icNo?: string;
+    leaveQuota?: number;
     annualLeaveQuota?: number;
     medicalLeaveQuota?: number;
     unpaidLeaveQuota?: number;
@@ -38,7 +39,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
     const [editing, setEditing] = useState(false);
 
     const [leaveUsage, setLeaveUsage] = useState<LeaveUsage>({ annual: 0, medical: 0, unpaid: 0 });
-    const [quotaForm, setQuotaForm] = useState({ annualLeaveQuota: 14, medicalLeaveQuota: 14, unpaidLeaveQuota: 10 });
+    const [quotaForm, setQuotaForm] = useState({ leaveQuota: 38 });
     const [updatingQuotas, setUpdatingQuotas] = useState(false);
     const [message, setMessage] = useState('');
 
@@ -61,9 +62,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                         setStatus(data.status ?? 'PERMANENT');
                         setJoinDate(data.joinDate ? new Date(data.joinDate).toISOString().split('T')[0] : '');
                         setQuotaForm({
-                            annualLeaveQuota: data.annualLeaveQuota ?? 14,
-                            medicalLeaveQuota: data.medicalLeaveQuota ?? 14,
-                            unpaidLeaveQuota: data.unpaidLeaveQuota ?? 10,
+                            leaveQuota: data.leaveQuota ?? (data.annualLeaveQuota || data.medicalLeaveQuota || data.unpaidLeaveQuota || 38),
                         });
                     }
                 } catch (error) {
@@ -136,9 +135,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                     status: employee.status,
                     fullName: employee.fullName,
                     icNo: employee.icNo,
-                    annualLeaveQuota: quotaForm.annualLeaveQuota,
-                    medicalLeaveQuota: quotaForm.medicalLeaveQuota,
-                    unpaidLeaveQuota: quotaForm.unpaidLeaveQuota,
+                    leaveQuota: quotaForm.leaveQuota,
                 }),
             });
             if (res.ok) {
@@ -160,6 +157,10 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
 
     if (loading) return <div>Loading...</div>;
     if (!employee) return <div>Employee not found</div>;
+
+    const totalLeaveUsed = leaveUsage.annual + leaveUsage.medical + leaveUsage.unpaid;
+    const totalQuota = targetIsAdmin ? 0 : (employee.leaveQuota ?? quotaForm.leaveQuota ?? 38);
+    const totalRemaining = Math.max(0, totalQuota - totalLeaveUsed);
 
     return (
         <div>
@@ -240,52 +241,39 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 )}
             </div>
 
-            <div className="bg-white p-6 rounded-md shadow-md mt-6">
-                <h3 className="text-xl font-semibold mb-4">Leave Quota & Usage</h3>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    <div className="p-4 border rounded-lg">
-                        <p className="text-sm text-slate-500">Annual quota</p>
-                        <p className="text-2xl font-bold">{targetIsAdmin ? 'N/A' : `${employee.annualLeaveQuota ?? quotaForm.annualLeaveQuota}`}</p>
-                        <p className="text-xs text-slate-500">Taken: {targetIsAdmin ? 'N/A' : leaveUsage.annual}</p>
-                        <p className="text-xs text-slate-500">Remaining: {targetIsAdmin ? 'N/A' : Math.max(0, (employee.annualLeaveQuota ?? quotaForm.annualLeaveQuota) - leaveUsage.annual)}</p>
-                    </div>
-                    <div className="p-4 border rounded-lg">
-                        <p className="text-sm text-slate-500">Medical quota</p>
-                        <p className="text-2xl font-bold">{targetIsAdmin ? 'N/A' : `${employee.medicalLeaveQuota ?? quotaForm.medicalLeaveQuota}`}</p>
-                        <p className="text-xs text-slate-500">Taken: {targetIsAdmin ? 'N/A' : leaveUsage.medical}</p>
-                        <p className="text-xs text-slate-500">Remaining: {targetIsAdmin ? 'N/A' : Math.max(0, (employee.medicalLeaveQuota ?? quotaForm.medicalLeaveQuota) - leaveUsage.medical)}</p>
-                    </div>
-                    <div className="p-4 border rounded-lg">
-                        <p className="text-sm text-slate-500">Unpaid quota</p>
-                        <p className="text-2xl font-bold">{targetIsAdmin ? 'N/A' : `${employee.unpaidLeaveQuota ?? quotaForm.unpaidLeaveQuota}`}</p>
-                        <p className="text-xs text-slate-500">Taken: {targetIsAdmin ? 'N/A' : leaveUsage.unpaid}</p>
-                        <p className="text-xs text-slate-500">Remaining: {targetIsAdmin ? 'N/A' : Math.max(0, (employee.unpaidLeaveQuota ?? quotaForm.unpaidLeaveQuota) - leaveUsage.unpaid)}</p>
+            {isAdmin && !targetIsAdmin && (
+                <div className="bg-white p-6 rounded-md shadow-md mt-6">
+                    <h4 className="font-semibold mb-3 text-xl">Adjust leave quotas</h4>
+                    <div className="flex flex-col gap-4">
+                        <div className="flex items-end gap-3">
+                            <div className="flex-1 max-w-xs">
+                                <label className="block text-sm text-slate-600 mb-1">Unified leave quota</label>
+                                <input type="number" min={0} value={quotaForm.leaveQuota} onChange={e => setQuotaForm({ ...quotaForm, leaveQuota: Number(e.target.value) })} className="w-full rounded-md border p-2" />
+                            </div>
+                            <button onClick={handleUpdateQuotas} disabled={updatingQuotas} className="px-6 py-2 text-base rounded-md bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50 whitespace-nowrap">{updatingQuotas ? 'Saving...' : 'Save quotas'}</button>
+                        </div>
+                        <p className="text-xs text-slate-500">This gets stored as the one global quota for the employee; leave types are tracked via requests.</p>
+                        {message && <p className="text-sm text-green-600">{message}</p>}
                     </div>
                 </div>
+            )}
 
-                {isAdmin && !targetIsAdmin && (
-                    <div className="mt-6 border-t pt-5">
-                        <h4 className="font-semibold mb-3">Adjust leave quotas</h4>
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                            <div>
-                                <label className="block text-sm text-slate-600 mb-1">Annual</label>
-                                <input type="number" min={0} value={quotaForm.annualLeaveQuota} onChange={e => setQuotaForm({ ...quotaForm, annualLeaveQuota: Number(e.target.value) })} className="w-full rounded-md border p-2" />
-                            </div>
-                            <div>
-                                <label className="block text-sm text-slate-600 mb-1">Medical</label>
-                                <input type="number" min={0} value={quotaForm.medicalLeaveQuota} onChange={e => setQuotaForm({ ...quotaForm, medicalLeaveQuota: Number(e.target.value) })} className="w-full rounded-md border p-2" />
-                            </div>
-                            <div>
-                                <label className="block text-sm text-slate-600 mb-1">Unpaid</label>
-                                <input type="number" min={0} value={quotaForm.unpaidLeaveQuota} onChange={e => setQuotaForm({ ...quotaForm, unpaidLeaveQuota: Number(e.target.value) })} className="w-full rounded-md border p-2" />
-                            </div>
-                        </div>
-                        <div className="mt-4 flex items-center gap-3">
-                            <button onClick={handleUpdateQuotas} disabled={updatingQuotas} className="px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg rounded-md bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50">{updatingQuotas ? 'Saving...' : 'Save quotas'}</button>
-                            {message && <p className="text-sm text-green-600">{message}</p>}
-                        </div>
+            <div className="bg-white p-6 rounded-md shadow-md mt-6">
+                <h3 className="text-xl font-semibold mb-4">Leave Quota & Usage</h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="p-4 border rounded-lg">
+                        <p className="text-sm text-slate-500">Total leave quota</p>
+                        <p className="text-2xl font-bold">{targetIsAdmin ? 'N/A' : `${totalQuota}`}</p>
+                        <p className="text-xs text-slate-500">Taken: {targetIsAdmin ? 'N/A' : totalLeaveUsed}</p>
+                        <p className="text-xs text-slate-500">Remaining: {targetIsAdmin ? 'N/A' : totalRemaining}</p>
                     </div>
-                )}
+                    <div className="p-4 border rounded-lg">
+                        <p className="text-sm text-slate-500">Recorded leave by type</p>
+                        <p className="text-xs text-slate-500">Annual: {leaveUsage.annual}</p>
+                        <p className="text-xs text-slate-500">Medical: {leaveUsage.medical}</p>
+                        <p className="text-xs text-slate-500">Unpaid: {leaveUsage.unpaid}</p>
+                    </div>
+                </div>
 
                 {isAdmin && targetIsAdmin && (
                     <div className="mt-6 border-t pt-5">

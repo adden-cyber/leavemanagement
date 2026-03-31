@@ -18,6 +18,7 @@ export async function GET() {
                 position: true,
                 status: true,
                 joinDate: true,
+                leaveQuota: true,
                 annualLeaveQuota: true,
                 medicalLeaveQuota: true,
                 unpaidLeaveQuota: true,
@@ -80,6 +81,7 @@ export async function POST(req: Request) {
                     status: normalizedStatus,
                     joinDate: new Date(joinDate),
                     // Admin accounts are not subject to personal leave quotas
+                    leaveQuota: isAdminRole ? 0 : 38,
                     annualLeaveQuota: isAdminRole ? 0 : 14,
                     medicalLeaveQuota: isAdminRole ? 0 : 14,
                     unpaidLeaveQuota: isAdminRole ? 0 : 10,

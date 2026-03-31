@@ -9,9 +9,14 @@ const Sidebar = () => {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const { data: session } = useSession();
+    const [isClient, setIsClient] = useState(false);
 
-    const currentView = searchParams.get('view') || 'analytics';
-    const isAdmin = session?.user?.role === 'ADMIN';
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    const currentView = isClient ? (searchParams.get('view') || 'analytics') : 'analytics';
+    const isAdmin = isClient && session?.user?.role === 'ADMIN';
     const leaveLabel = isAdmin ? 'Leave Approvement' : 'Leave Application';
 
     const navItems = [
