@@ -77,20 +77,83 @@ export default function AnalyticsView() {
                 <p className="text-sm text-gray-500">Welcome back! Here's what's happening today.</p>
             </div>
 
-            {/* KPI Cards */}
-            <div className={`grid gap-4 md:grid-cols-2 ${data.isAdmin ? 'lg:grid-cols-2' : 'lg:grid-cols-3'}`}>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">Leaves This Month</CardTitle>
-                        <span className="text-xl">📄</span>
+            {/* KPI cards first row (mobile two-column) */}
+            <div className="grid grid-cols-2 gap-2 items-start">
+                <Card className="p-3">
+                    <CardHeader className="flex flex-row items-center justify-between pb-1">
+                        <CardTitle className="text-xs font-semibold text-gray-500">Leaves This Month</CardTitle>
+                        <span className="text-sm">📄</span>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-gray-900">{data.leavesThisMonth}</div>
-                        <p className="text-xs text-gray-500">
-                            <span className="text-green-500 font-medium">+{data.newHiresThisMonth}</span> new hires this month
+                    <CardContent className="p-2 pt-1">
+                        <div className="text-xl font-bold text-gray-900 leading-none">{data.leavesThisMonth}</div>
+                        <p className="text-xs text-gray-500 mt-1">
+                            <span className="text-green-500 font-medium">+{data.newHiresThisMonth}</span>
                         </p>
                     </CardContent>
                 </Card>
+
+                <Card className="p-3">
+                    <CardHeader className="flex flex-row items-center justify-between pb-1">
+                        <CardTitle className="text-xs font-semibold text-gray-500">System Status</CardTitle>
+                        <span className="text-sm">✓</span>
+                    </CardHeader>
+                    <CardContent className="p-2 pt-1">
+                        {data.isAdmin && data.pendingLeaveRequests && data.pendingLeaveRequests > 0 ? (
+                            <>
+                                <div className="text-xl font-bold text-gray-900 leading-none">{data.pendingLeaveRequests}</div>
+                                <p className="text-xs text-gray-500">Pending leaves</p>
+                            </>
+                        ) : (
+                            <>
+                                <div className="text-xl font-bold text-green-600 leading-none">All Good</div>
+                                <p className="text-xs text-gray-500">No pending actions</p>
+                            </>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* KPI second row */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+                {!data.isAdmin && (
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">My Leaves Applied</CardTitle>
+                            <span className="text-xl">🌴</span>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-gray-900">{data.myTotalLeavesApplied || 0}</div>
+                            <p className="text-xs text-gray-500 cursor-pointer hover:text-[#7559e0]">View your leave history</p>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {data.isAdmin && data.pendingLeaveRequests && data.pendingLeaveRequests > 0 ? (
+                    <Card className="bg-gradient-to-br from-[#7559e0] to-[#5939b8] text-white">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium text-white/80">Pending Leaves</CardTitle>
+                            <span className="text-xl">🔔</span>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{data.pendingLeaveRequests}</div>
+                            <Link href="/dashboard?view=leave" className="text-xs text-white/80 mt-1 cursor-pointer hover:text-white hover:underline block">
+                                Review applications now
+                            </Link>
+                        </CardContent>
+                    </Card>
+                ) : data.isAdmin ? (
+                    <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium text-white/80">System Status</CardTitle>
+                            <span className="text-xl">✅</span>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">All Good</div>
+                            <p className="text-xs text-white/80 mt-1">No pending actions</p>
+                        </CardContent>
+                    </Card>
+                ) : null
+            </div>
 
                 {!data.isAdmin && (
                     <Card>
@@ -140,7 +203,7 @@ export default function AnalyticsView() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-sm font-medium text-gray-500">Leave Request Summary</CardTitle>
-                            <span className="text-lg">📊</span>
+                            <span className="text-lg">•</span>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2 text-sm">
