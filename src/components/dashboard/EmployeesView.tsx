@@ -127,6 +127,15 @@ export default function EmployeesView() {
     const ownMedicalTaken = employeeLeaves.filter(l => l.status === 'APPROVED' && l.type === 'MEDICAL').length;
     const ownUnpaidTaken = employeeLeaves.filter(l => l.status === 'APPROVED' && l.type === 'UNPAID').length;
 
+    const formatJoinDate = (dateString: string) => {
+        const parsed = new Date(dateString);
+        if (Number.isNaN(parsed.getTime())) return dateString;
+        return parsed.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    };
+
+    const actionBtnClass =
+        'h-10 w-10 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all';
+
     useEffect(() => {
         if (!isAdmin && ownEmployee) {
             // load current employee's leave info for leave credits view
@@ -242,22 +251,22 @@ export default function EmployeesView() {
             </div>
 
             {/* Filters & Search */}
-            <div className="bg-white p-6 rounded-lg border border-slate-100 shadow-md flex flex-col sm:flex-row gap-4 justify-between items-center">
-                <div className="relative w-full sm:w-96">
-                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 text-xl pointer-events-none">🔍</span>
-                    <input
-                        type="text"
-                        placeholder="Search by name, role, or username..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pr-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 bg-slate-50/50"
-                        style={{ paddingLeft: '3.5rem' }}
-                    />
-                </div>
-                <div className="flex gap-3">
-                    <button className="px-5 py-2.5 font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all">
+            <div className="bg-white p-6 rounded-lg border border-slate-100 shadow-md">
+                <div className="flex flex-col gap-3">
+                    <button className="w-full h-12 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all">
                         Filter
                     </button>
+                    <div className="relative w-full">
+                        <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 text-xl pointer-events-none">🔍</span>
+                        <input
+                            type="text"
+                            placeholder="Search by name, role, or username..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pr-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 bg-slate-50/50"
+                            style={{ paddingLeft: '3.5rem' }}
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -350,12 +359,12 @@ export default function EmployeesView() {
                                                     {emp.status}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-5 text-slate-600">{new Date(emp.joinDate).toLocaleDateString()}</td>
+                                            <td className="px-8 py-5 text-slate-600">{formatJoinDate(emp.joinDate)}</td>
                                             <td className="px-8 py-5 flex justify-end gap-2">
                                                 {(isAdmin || emp.user?.username === session?.user?.email) && (
                                                     <button
                                                         onClick={() => handleEditClick(emp)}
-                                                        className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
+                                                        className={actionBtnClass}
                                                         title="Edit Profile"
                                                     >
                                                         ✏️
@@ -364,7 +373,7 @@ export default function EmployeesView() {
                                                 {isAdmin && emp.user.username !== session?.user?.email && (
                                                     <button
                                                         onClick={() => handleDelete(emp.id)}
-                                                        className="p-2 text-red-400 hover:text-white hover:bg-red-500 rounded-lg transition-all"
+                                                        className={`${actionBtnClass} text-red-400 border-red-200 hover:text-white hover:bg-red-500`}
                                                         title="Delete Account"
                                                     >
                                                         🗑️
@@ -443,12 +452,12 @@ export default function EmployeesView() {
                                                     {emp.status}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-5 text-slate-600">{new Date(emp.joinDate).toLocaleDateString()}</td>
+                                            <td className="px-8 py-5 text-slate-600">{formatJoinDate(emp.joinDate)}</td>
                                             <td className="px-8 py-5 flex justify-end gap-2">
                                                 {(isAdmin || emp.user?.username === session?.user?.email) && (
                                                     <button
                                                         onClick={() => handleEditClick(emp)}
-                                                        className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
+                                                        className={actionBtnClass}
                                                         title="Edit Profile"
                                                     >
                                                         ✏️
@@ -457,7 +466,7 @@ export default function EmployeesView() {
                                                 {isAdmin && emp.user.username !== session?.user?.email && (
                                                     <button
                                                         onClick={() => handleDelete(emp.id)}
-                                                        className="p-2 text-red-400 hover:text-white hover:bg-red-500 rounded-lg transition-all"
+                                                        className={`${actionBtnClass} text-red-400 border-red-200 hover:text-white hover:bg-red-500`}
                                                         title="Delete Account"
                                                     >
                                                         🗑️
