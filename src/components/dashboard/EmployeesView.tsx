@@ -239,10 +239,19 @@ export default function EmployeesView() {
                     >
                         {loading ? 'Refreshing...' : '🔄 Refresh'}
                     </button>
+
+                    <button
+                        onClick={() => alert('Filter action (mobile only)')}
+                        className="px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all sm:hidden"
+                        title="Filter"
+                    >
+                        ⚙️ Filter
+                    </button>
+
                     {isAdmin && (
                         <Link
                             href="/dashboard/employees/new"
-                            className="inline-flex items-center justify-center px-8 py-4 sm:px-10 sm:py-5 text-base sm:text-lg bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20"
+                            className="hidden sm:inline-flex items-center justify-center px-8 py-4 sm:px-10 sm:py-5 text-base sm:text-lg bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20"
                         >
                             Add Employee
                         </Link>
@@ -250,23 +259,17 @@ export default function EmployeesView() {
                 </div>
             </div>
 
-            {/* Filters & Search */}
             <div className="bg-white p-6 rounded-lg border border-slate-100 shadow-md">
-                <div className="flex flex-col gap-3">
-                    <button className="w-full h-12 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all">
-                        Filter
-                    </button>
-                    <div className="relative w-full">
-                        <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 text-xl pointer-events-none">🔍</span>
-                        <input
-                            type="text"
-                            placeholder="Search by name, role, or username..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pr-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 bg-slate-50/50"
-                            style={{ paddingLeft: '3.5rem' }}
-                        />
-                    </div>
+                <div className="relative w-full">
+                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 text-xl pointer-events-none">🔍</span>
+                    <input
+                        type="text"
+                        placeholder="Search by name, role, or username..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pr-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 bg-slate-50/50"
+                        style={{ paddingLeft: '3.5rem' }}
+                    />
                 </div>
             </div>
 
