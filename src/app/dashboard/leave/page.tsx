@@ -26,6 +26,7 @@ export default function LeavePage() {
     const [reason, setReason] = useState('');
     const [leaveType, setLeaveType] = useState('ANNUAL');
     const [icNo, setIcNo] = useState('');
+    const [isLeaveTypeExpanded, setIsLeaveTypeExpanded] = useState(false);
 
     useEffect(() => {
         const fetchLeaves = async () => {
@@ -135,7 +136,48 @@ export default function LeavePage() {
 
                     <div className="space-y-4">
                         <label className="block text-sm font-bold text-slate-700 tracking-wide">LEAVE TYPE</label>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        
+                        {/* Mobile collapsible dropdown */}
+                        <div className="md:hidden">
+                            <button
+                                type="button"
+                                onClick={() => setIsLeaveTypeExpanded(!isLeaveTypeExpanded)}
+                                className="w-full px-6 py-5 border-2 border-slate-200 bg-white rounded-lg text-left flex items-center justify-between hover:border-slate-300 transition-all"
+                            >
+                                <span className="text-base font-medium text-slate-900">
+                                    {leaveType} LEAVE
+                                </span>
+                                <svg
+                                    className={`w-5 h-5 text-slate-500 transition-transform ${isLeaveTypeExpanded ? 'rotate-180' : ''}`}
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            
+                            {isLeaveTypeExpanded && (
+                                <div className="mt-2 border border-slate-200 rounded-lg bg-white shadow-lg">
+                                    {['ANNUAL', 'UNPAID', 'MEDICAL'].map((type) => (
+                                        <button
+                                            key={type}
+                                            type="button"
+                                            onClick={() => {
+                                                setLeaveType(type);
+                                                setIsLeaveTypeExpanded(false);
+                                            }}
+                                            className="w-full px-6 py-4 text-left hover:bg-slate-50 transition-colors first:rounded-t-lg last:rounded-b-lg border-b border-slate-100 last:border-b-0"
+                                        >
+                                            <span className="text-base font-medium text-slate-900">{type} LEAVE</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        
+                        {/* Desktop radio buttons */}
+                        <div className="hidden md:grid md:grid-cols-3 gap-6">
                             {['ANNUAL', 'UNPAID', 'MEDICAL'].map((type) => (
                                 <label key={type} className={`
                                     relative flex items-center justify-center gap-3 px-6 py-5 rounded-lg cursor-pointer transition-all border-2
@@ -168,7 +210,7 @@ export default function LeavePage() {
                                 value={startDate}
                                 onChange={e => setStartDate(e.target.value)}
                                 required
-                                className="w-full px-6 py-4 border-0 bg-white rounded-lg text-base text-slate-900 font-medium shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 transition-all cursor-pointer"
+                                className="md:w-full w-48 px-8 py-6 border-0 bg-white rounded-lg text-lg text-slate-900 font-medium shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 transition-all cursor-pointer"
                             />
                         </div>
                         <div className="space-y-3">
@@ -178,7 +220,7 @@ export default function LeavePage() {
                                 value={endDate}
                                 onChange={e => setEndDate(e.target.value)}
                                 required
-                                className="w-full px-6 py-4 border-0 bg-white rounded-lg text-base text-slate-900 font-medium shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 transition-all cursor-pointer"
+                                className="md:w-full w-48 px-8 py-6 border-0 bg-white rounded-lg text-lg text-slate-900 font-medium shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-slate-900 transition-all cursor-pointer"
                             />
                         </div>
                     </div>
