@@ -155,48 +155,6 @@ export default function AnalyticsView() {
                 ) : null
             </div>
 
-                {!data.isAdmin && (
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-gray-500">My Leaves Applied</CardTitle>
-                            <span className="text-xl">🌴</span>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-gray-900">{data.myTotalLeavesApplied || 0}</div>
-                            <p className="text-xs text-gray-500 cursor-pointer hover:text-[#7559e0]">View your leave history</p>
-                        </CardContent>
-                    </Card>
-                )}
-
-                {data.isAdmin && data.pendingLeaveRequests && data.pendingLeaveRequests > 0 ? (
-                    <Card className="bg-gradient-to-br from-[#7559e0] to-[#5939b8] text-white">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-white/80">Pending Leaves</CardTitle>
-                            <span className="text-xl">🔔</span>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">
-                                {data.pendingLeaveRequests === 1 ? '1' : `${data.pendingLeaveRequests}`}
-                            </div>
-                            <Link href="/dashboard?view=leave" className="text-xs text-white/80 mt-1 cursor-pointer hover:text-white hover:underline block">
-                                Review applications now
-                            </Link>
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-white/80">System Status</CardTitle>
-                            <span className="text-xl">✅</span>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">All Good</div>
-                            <p className="text-xs text-white/80 mt-1">No pending actions</p>
-                        </CardContent>
-                    </Card>
-                )}
-            </div>
-
             {/* Leave Type Stats */}
             <div className="grid gap-4">
                 <div className="md:hidden">
