@@ -25,6 +25,7 @@ export default function ActivityView() {
     // pagination state
     const PAGE_SIZE = 10;
     const [page, setPage] = useState(0);
+    const totalPages = Math.max(1, Math.ceil(activities.length / PAGE_SIZE));
 
     useEffect(() => {
         // if activities list changes (e.g. refresh) go back to first page
@@ -106,50 +107,73 @@ export default function ActivityView() {
 
             {/* Activity Stats - Moved to Top */}
             {activities.length > 0 && (
-                <div className="grid gap-4 md:grid-cols-3">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-gray-500">Total Activities</CardTitle>
-                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-gray-900">{activities.length}</div>
-                            <p className="text-xs text-gray-500">Recent system activities</p>
-                        </CardContent>
-                    </Card>
+                <>
+                    <div className="grid gap-4 md:hidden">
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-sm font-medium text-gray-500">Activity Summary</CardTitle>
+                                <span className="text-lg">📈</span>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between">
+                                        <span>Total Activities</span>
+                                        <span className="font-bold">{activities.length}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Active Users</span>
+                                        <span className="font-bold">{new Set(activities.map(a => a.user)).size}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Most Recent</span>
+                                        <span className="font-bold">{activities[0]?.time || 'N/A'}</span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
 
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-gray-500">Active Users</CardTitle>
-                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 12H9m6 0a6 6 0 11-12 0 6 6 0 0112 0z" />
-                            </svg>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-gray-900">
-                                {new Set(activities.map(a => a.user)).size}
-                            </div>
-                            <p className="text-xs text-gray-500">Unique users with activity</p>
-                        </CardContent>
-                    </Card>
+                    <div className="hidden md:grid md:grid-cols-3 gap-4">
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-sm font-medium text-gray-500">Total Activities</CardTitle>
+                                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-gray-900">{activities.length}</div>
+                                <p className="text-xs text-gray-500">Recent system activities</p>
+                            </CardContent>
+                        </Card>
 
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-gray-500">Most Recent</CardTitle>
-                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-lg font-bold text-gray-900">
-                                {activities[0]?.time || 'N/A'}
-                            </div>
-                            <p className="text-xs text-gray-500">Latest activity</p>
-                        </CardContent>
-                    </Card>
-                </div>
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-sm font-medium text-gray-500">Active Users</CardTitle>
+                                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 12H9m6 0a6 6 0 11-12 0 6 6 0 0112 0z" />
+                                </svg>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-gray-900">{new Set(activities.map(a => a.user)).size}</div>
+                                <p className="text-xs text-gray-500">Unique users with activity</p>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-sm font-medium text-gray-500">Most Recent</CardTitle>
+                                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-lg font-bold text-gray-900">{activities[0]?.time || 'N/A'}</div>
+                                <p className="text-xs text-gray-500">Latest activity</p>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </>
             )}
 
             {/* Activities Grid */}
@@ -214,11 +238,23 @@ export default function ActivityView() {
                                     </button>
                                     <button
                                         className="px-4 py-2 rounded bg-gray-200 text-gray-700 disabled:opacity-50"
-                                        onClick={() => setPage(p => p + 1)}
-                                        disabled={(page + 1) * PAGE_SIZE >= activities.length}
+                                        onClick={() => setPage(p => Math.min(p + 1, totalPages - 1))}
+                                        disabled={page >= totalPages - 1}
                                     >
                                         Next &rarr;
                                     </button>
+                                </div>
+
+                                {/* dot indicators below */}
+                                <div className="mt-3 flex justify-center gap-2">
+                                    {Array.from({ length: totalPages }, (_, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setPage(idx)}
+                                            className={`h-2.5 w-2.5 rounded-full ${page === idx ? 'bg-[#7559e0]' : 'bg-slate-300 hover:bg-slate-400'}`}
+                                            aria-label={`Go to page ${idx + 1}`}
+                                        />
+                                    ))}
                                 </div>
                             </>
                         )}

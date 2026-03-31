@@ -135,45 +135,72 @@ export default function AnalyticsView() {
             </div>
 
             {/* Leave Type Stats */}
-            <div className="grid gap-4 md:grid-cols-3">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">Annual Leaves</CardTitle>
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-gray-900">{data.annualLeaves}</div>
-                        <p className="text-xs text-gray-500">Total annual leave requests</p>
-                    </CardContent>
-                </Card>
+            <div className="grid gap-4">
+                <div className="md:hidden">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">Leave Request Summary</CardTitle>
+                            <span className="text-lg">📊</span>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                    <span>Annual</span>
+                                    <span className="font-bold">{data.annualLeaves}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span>Unpaid</span>
+                                    <span className="font-bold">{data.unpaidLeaves}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span>Medical</span>
+                                    <span className="font-bold">{data.medicalLeaves}</span>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
 
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">Unpaid Leaves</CardTitle>
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-gray-900">{data.unpaidLeaves}</div>
-                        <p className="text-xs text-gray-500">Total unpaid leave requests</p>
-                    </CardContent>
-                </Card>
+                <div className="hidden md:grid md:grid-cols-3 gap-4">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">Annual Leaves</CardTitle>
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-gray-900">{data.annualLeaves}</div>
+                            <p className="text-xs text-gray-500">Total annual leave requests</p>
+                        </CardContent>
+                    </Card>
 
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">Medical Leaves</CardTitle>
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-gray-900">{data.medicalLeaves}</div>
-                        <p className="text-xs text-gray-500">Total medical leave requests</p>
-                    </CardContent>
-                </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">Unpaid Leaves</CardTitle>
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-gray-900">{data.unpaidLeaves}</div>
+                            <p className="text-xs text-gray-500">Total unpaid leave requests</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">Medical Leaves</CardTitle>
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-gray-900">{data.medicalLeaves}</div>
+                            <p className="text-xs text-gray-500">Total medical leave requests</p>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
 
             {/* Leave Trends Chart */}
