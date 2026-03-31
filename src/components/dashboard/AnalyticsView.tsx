@@ -77,8 +77,8 @@ export default function AnalyticsView() {
                 <p className="text-sm text-gray-500">Welcome back! Here's what's happening today.</p>
             </div>
 
-            {/* KPI cards first row (mobile two-column) */}
-            <div className="grid grid-cols-2 gap-2 items-start">
+            {/* KPI cards first row (mobile one card, include system status) */}
+            <div className="grid grid-cols-1 gap-2 items-start">
                 <Card className="p-3">
                     <CardHeader className="flex flex-row items-center justify-between pb-1">
                         <CardTitle className="text-xs font-semibold text-gray-500">Leaves This Month</CardTitle>
@@ -89,26 +89,24 @@ export default function AnalyticsView() {
                         <p className="text-xs text-gray-500 mt-1">
                             <span className="text-green-500 font-medium">+{data.newHiresThisMonth}</span>
                         </p>
-                    </CardContent>
-                </Card>
 
-                <Card className="p-3">
-                    <CardHeader className="flex flex-row items-center justify-between pb-1">
-                        <CardTitle className="text-xs font-semibold text-gray-500">System Status</CardTitle>
-                        <span className="text-sm">✓</span>
-                    </CardHeader>
-                    <CardContent className="p-2 pt-1">
-                        {data.isAdmin && data.pendingLeaveRequests && data.pendingLeaveRequests > 0 ? (
-                            <>
-                                <div className="text-xl font-bold text-gray-900 leading-none">{data.pendingLeaveRequests}</div>
-                                <p className="text-xs text-gray-500">Pending leaves</p>
-                            </>
-                        ) : (
-                            <>
-                                <div className="text-xl font-bold text-green-600 leading-none">All Good</div>
-                                <p className="text-xs text-gray-500">No pending actions</p>
-                            </>
-                        )}
+                        <div className="mt-3 rounded-lg border border-gray-200 p-2 bg-gray-50">
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs text-gray-500">System Status</span>
+                                <span className="text-xs">✓</span>
+                            </div>
+                            {data.isAdmin && data.pendingLeaveRequests && data.pendingLeaveRequests > 0 ? (
+                                <div>
+                                    <div className="text-sm font-semibold text-gray-900">{data.pendingLeaveRequests} pending</div>
+                                    <p className="text-xs text-gray-500">Leave applications need review</p>
+                                </div>
+                            ) : (
+                                <div>
+                                    <div className="text-sm font-semibold text-green-600">All Good</div>
+                                    <p className="text-xs text-gray-500">No pending actions</p>
+                                </div>
+                            )}
+                        </div>
                     </CardContent>
                 </Card>
             </div>
