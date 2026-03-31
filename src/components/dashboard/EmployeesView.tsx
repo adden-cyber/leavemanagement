@@ -248,14 +248,7 @@ export default function EmployeesView() {
                         ⚙️ Filter
                     </button>
 
-                    {isAdmin && (
-                        <Link
-                            href="/dashboard/employees/new"
-                            className="hidden sm:inline-flex items-center justify-center px-8 py-4 sm:px-10 sm:py-5 text-base sm:text-lg bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20"
-                        >
-                            Add Employee
-                        </Link>
-                    )}
+
                 </div>
             </div>
 
