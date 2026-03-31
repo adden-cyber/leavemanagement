@@ -152,7 +152,7 @@ export default function AnalyticsView() {
                             <p className="text-xs text-white/80 mt-1">No pending actions</p>
                         </CardContent>
                     </Card>
-                ) : null
+                ) : null}
             </div>
 
             {/* Leave Type Stats */}
