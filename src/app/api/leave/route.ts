@@ -43,6 +43,7 @@ export async function GET(req: Request) {
                     status: true,
                     managerNote: true,
                     managerSignature: true,
+                    managerName: true,
                     createdAt: true,
                     updatedAt: true,
                     employee: {

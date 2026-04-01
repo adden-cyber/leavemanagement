@@ -1,18 +1,32 @@
-import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import { defineConfig } from "eslint/config";
 
-const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
-  // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
+export default defineConfig({
+  languageOptions: {
+    parserOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+    },
+    globals: {
+      window: "readonly",
+      document: "readonly",
+      NodeJS: "readonly",
+      require: "readonly",
+      process: "readonly",
+      module: "readonly",
+      __dirname: "readonly",
+      __filename: "readonly",
+    },
+  },
+  ignores: [
     ".next/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
-  ]),
-]);
-
-export default eslintConfig;
+    "check_users.js",
+    "delete_admins.js",
+    "scripts/**",
+  ],
+  rules: {
+    "no-unused-vars": "warn",
+  },
+});

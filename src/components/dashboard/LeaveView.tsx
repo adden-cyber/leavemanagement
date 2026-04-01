@@ -14,6 +14,7 @@ type LeaveRequest = {
     type: string;
     managerNote?: string;
     managerSignature?: string;
+    managerName?: string;
     employee: { fullName: string; icNo?: string | null };
 };
 
@@ -492,6 +493,9 @@ export default function LeaveView() {
                                         </td>
                                         <td className="px-6 py-4 space-y-1">
                                             <span className="text-sm text-slate-500 italic max-w-[150px] truncate block" title={leave.managerNote || ''}>{leave.managerNote || '-'}</span>
+                                            {leave.managerName && (
+                                                <span className="text-xs text-slate-500">By: {leave.managerName}</span>
+                                            )}
                                             {leave.managerSignature ? (
                                                 <img src={leave.managerSignature} alt="Signature" className="h-10 w-40 object-contain border border-slate-200" />
                                             ) : null}
@@ -615,6 +619,9 @@ export default function LeaveView() {
                                         <p className="text-sm text-slate-700">{leave.reason}</p>
                                         {leave.managerNote && (
                                             <p className="text-sm text-slate-500 italic mt-2">Note: {leave.managerNote}</p>
+                                        )}
+                                        {leave.managerName && (
+                                            <p className="text-sm text-slate-500 italic mt-1">Processed by: {leave.managerName}</p>
                                         )}
                                     </div>
                                 </div>

@@ -17,6 +17,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         }
 
         const { status, managerNote, managerSignature } = await req.json(); // "APPROVED" or "REJECTED"
+        const managerName = session.user.name || session.user.username || session.user.email || 'Admin';
 
         const leaveRequest = await prisma.leaveRequest.update({
             where: { id: id },
@@ -24,6 +25,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
                 status,
                 managerNote,
                 managerSignature: managerSignature || null,
+                managerName,
             }
         });
 

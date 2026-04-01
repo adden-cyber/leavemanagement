@@ -34,6 +34,29 @@ export default function LeaveCreditsView() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
+    // Load saved layout settings
+    const [mainBoxSize, setMainBoxSize] = useState(320);
+    const [typeBoxWidth, setTypeBoxWidth] = useState(180);
+    const [typeRowGap, setTypeRowGap] = useState(32);
+    const [typeTopGap, setTypeTopGap] = useState(48);
+
+    const storageKey = 'leaveCreditsLayoutSettings';
+
+    useEffect(() => {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+            try {
+                const settings = JSON.parse(saved);
+                setMainBoxSize(settings.mainBoxSize || 320);
+                setTypeBoxWidth(settings.typeBoxWidth || 180);
+                setTypeRowGap(settings.typeRowGap || 32);
+                setTypeTopGap(settings.typeTopGap || 48);
+            } catch (e) {
+                console.error('Failed to load layout settings', e);
+            }
+        }
+    }, []);
+
     useEffect(() => {
         const loadData = async () => {
             try {
@@ -94,83 +117,78 @@ export default function LeaveCreditsView() {
         );
     }
 
-    // Calculate leave usage
-    const annualTaken = leaves.filter(l => l.type === 'ANNUAL' && l.status === 'APPROVED').length;
-    const medicalTaken = leaves.filter(l => l.type === 'MEDICAL' && l.status === 'APPROVED').length;
-    const unpaidTaken = leaves.filter(l => l.type === 'UNPAID' && l.status === 'APPROVED').length;
+    // Calculate leave usage (days, inclusive)
+    const getLeaveDuration = (leave: LeaveRequest) => {
+        const start = new Date(leave.startDate);
+        const end = new Date(leave.endDate);
+        const diffMilliseconds = end.getTime() - start.getTime();
+        const diffDays = Math.floor(diffMilliseconds / (1000 * 60 * 60 * 24)) + 1;
+        return Math.max(1, diffDays);
+    };
+
+    const annualTaken = leaves
+        .filter(l => l.type === 'ANNUAL' && l.status === 'APPROVED')
+        .reduce((sum, l) => sum + getLeaveDuration(l), 0);
+    const medicalTaken = leaves
+        .filter(l => l.type === 'MEDICAL' && l.status === 'APPROVED')
+        .reduce((sum, l) => sum + getLeaveDuration(l), 0);
+    const unpaidTaken = leaves
+        .filter(l => l.type === 'UNPAID' && l.status === 'APPROVED')
+        .reduce((sum, l) => sum + getLeaveDuration(l), 0);
 
     const totalTaken = annualTaken + medicalTaken + unpaidTaken;
     const totalQuota = employee.leaveQuota || (employee.annualLeaveQuota + employee.medicalLeaveQuota + employee.unpaidLeaveQuota);
     const remaining = Math.max(0, totalQuota - totalTaken);
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 flex flex-col items-center">
             {/* Page Header */}
-            <div className="flex items-start justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Leave Credits</h1>
-                    <p className="text-gray-600 dark:text-gray-400 mt-1">
-                        View your available leave quota and usage
-                    </p>
+            <div className="text-center">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Leave Credits</h1>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">Your leave balance at a glance</p>
+            </div>
+
+            {/* Main Summary Card */}
+            <div
+                className="rounded-3xl p-5 text-center shadow-2xl border border-blue-100 dark:border-blue-800 bg-gradient-to-b from-cyan-300 to-blue-600 text-white"
+                style={{ height: `${mainBoxSize}px`, width: `${mainBoxSize}px` }}
+            >
+                <p className="text-xs md:text-sm font-medium tracking-wide uppercase leading-snug">YOUR TOTAL OF LEAVE CREDITS LEFT THIS YEAR IS</p>
+                <div className="my-3 text-7xl md:text-8xl font-black leading-none">{remaining}</div>
+                <p className="text-2xl md:text-3xl font-bold">Days of Leaves</p>
+                <p className="mt-3 text-base md:text-lg">Amount of Leaves taken: <span className="font-bold">{totalTaken}</span></p>
+            </div>
+
+            {/* Type Breakdown */}
+            <div
+                className="grid grid-cols-1 sm:grid-cols-3 justify-items-center"
+                style={{ marginTop: `${typeTopGap}px`, gap: `${typeRowGap}px` }}
+            >
+                <div
+                    className="rounded-2xl p-3 text-center bg-gradient-to-r from-cyan-300 to-blue-500 text-white shadow-lg"
+                    style={{ width: `${typeBoxWidth}px` }}
+                >
+                    <p className="text-sm uppercase tracking-wide">Annual Leaves Taken</p>
+                    <p className="mt-2 text-4xl font-bold">{annualTaken}</p>
+                </div>
+                <div
+                    className="rounded-2xl p-3 text-center bg-gradient-to-r from-green-300 to-teal-500 text-white shadow-lg"
+                    style={{ width: `${typeBoxWidth}px` }}
+                >
+                    <p className="text-sm uppercase tracking-wide">Medical Leaves Taken</p>
+                    <p className="mt-2 text-4xl font-bold">{medicalTaken}</p>
+                </div>
+                <div
+                    className="rounded-2xl p-3 text-center bg-gradient-to-r from-yellow-300 to-orange-500 text-white shadow-lg"
+                    style={{ width: `${typeBoxWidth}px` }}
+                >
+                    <p className="text-sm uppercase tracking-wide">Unpaid Leaves Taken</p>
+                    <p className="mt-2 text-4xl font-bold">{unpaidTaken}</p>
                 </div>
             </div>
 
-            {/* Employee Info Card */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-slate-700">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Name</p>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-white">{employee.fullName}</p>
-                    </div>
-                    <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Position</p>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-white">{employee.position}</p>
-                    </div>
-                    <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</p>
-                        <p className="text-lg font-semibold">
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                employee.status === 'ACTIVE'
-                                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                            }`}>
-                                {employee.status}
-                            </span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Leave Quota Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-slate-700">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Shared leave quota</h3>
-                        <span className="text-2xl">🧩</span>
-                    </div>
-                    <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">Total Quota</span>
-                            <span className="font-bold text-gray-900 dark:text-white">{totalQuota} days</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">Used (all types)</span>
-                            <span className="font-bold text-orange-600 dark:text-orange-400">{totalTaken} days</span>
-                        </div>
-                        <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-slate-700">
-                            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Remaining</span>
-                            <span className="font-bold text-green-600 dark:text-green-400">{remaining} days</span>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-slate-700">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recorded leave by type</h3>
-                    <div className="space-y-2">
-                        <p className="text-sm text-slate-500">Annual: {annualTaken} days</p>
-                        <p className="text-sm text-slate-500">Medical: {medicalTaken} days</p>
-                        <p className="text-sm text-slate-500">Unpaid: {unpaidTaken} days</p>
-                    </div>
-                </div>
+            <div className="text-center text-sm text-gray-600 dark:text-gray-400">
+                If you wish to extend your amount of leaves, do reach out to the admin to give a reason.
             </div>
         </div>
     );
