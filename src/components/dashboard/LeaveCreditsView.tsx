@@ -39,6 +39,7 @@ export default function LeaveCreditsView() {
     const [typeBoxWidth, setTypeBoxWidth] = useState(180);
     const [typeRowGap, setTypeRowGap] = useState(32);
     const [typeTopGap, setTypeTopGap] = useState(48);
+    const [isMobile, setIsMobile] = useState(false);
 
     const storageKey = 'leaveCreditsLayoutSettings';
 
@@ -55,6 +56,13 @@ export default function LeaveCreditsView() {
                 console.error('Failed to load layout settings', e);
             }
         }
+    }, []);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 640);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     useEffect(() => {
@@ -150,8 +158,8 @@ export default function LeaveCreditsView() {
 
             {/* Main Summary Card */}
             <div
-                className="rounded-3xl p-5 text-center shadow-2xl border border-blue-100 dark:border-blue-800 bg-gradient-to-b from-cyan-300 to-blue-600 text-white"
-                style={{ height: `${mainBoxSize}px`, width: `${mainBoxSize}px` }}
+                className="rounded-3xl p-5 text-center shadow-2xl border border-blue-100 dark:border-blue-800 bg-gradient-to-b from-cyan-300 to-blue-600 text-white flex flex-col items-center justify-center mx-auto"
+                style={{ height: `${mainBoxSize}px`, width: `${mainBoxSize}px`, maxWidth: '100%' }}
             >
                 <p className="text-xs md:text-sm font-medium tracking-wide uppercase leading-snug">YOUR TOTAL OF LEAVE CREDITS LEFT THIS YEAR IS</p>
                 <div className="my-3 text-7xl md:text-8xl font-black leading-none">{remaining}</div>
@@ -161,26 +169,26 @@ export default function LeaveCreditsView() {
 
             {/* Type Breakdown */}
             <div
-                className="grid grid-cols-1 sm:grid-cols-3 justify-items-center"
-                style={{ marginTop: `${typeTopGap}px`, gap: `${typeRowGap}px` }}
+                className="grid grid-cols-1 sm:grid-cols-3 justify-items-center w-full max-w-[680px] mx-auto"
+                style={{ marginTop: `${typeTopGap}px`, gap: `${isMobile ? 16 : typeRowGap}px` }}
             >
                 <div
                     className="rounded-2xl p-3 text-center bg-gradient-to-r from-cyan-300 to-blue-500 text-white shadow-lg"
-                    style={{ width: `${typeBoxWidth}px` }}
+                    style={{ width: `${typeBoxWidth}px`, maxWidth: '100%' }}
                 >
                     <p className="text-sm uppercase tracking-wide">Annual Leaves Taken</p>
                     <p className="mt-2 text-4xl font-bold">{annualTaken}</p>
                 </div>
                 <div
                     className="rounded-2xl p-3 text-center bg-gradient-to-r from-green-300 to-teal-500 text-white shadow-lg"
-                    style={{ width: `${typeBoxWidth}px` }}
+                    style={{ width: `${typeBoxWidth}px`, maxWidth: '100%' }}
                 >
                     <p className="text-sm uppercase tracking-wide">Medical Leaves Taken</p>
                     <p className="mt-2 text-4xl font-bold">{medicalTaken}</p>
                 </div>
                 <div
                     className="rounded-2xl p-3 text-center bg-gradient-to-r from-yellow-300 to-orange-500 text-white shadow-lg"
-                    style={{ width: `${typeBoxWidth}px` }}
+                    style={{ width: `${typeBoxWidth}px`, maxWidth: '100%' }}
                 >
                     <p className="text-sm uppercase tracking-wide">Unpaid Leaves Taken</p>
                     <p className="mt-2 text-4xl font-bold">{unpaidTaken}</p>
