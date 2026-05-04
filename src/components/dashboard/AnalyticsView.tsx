@@ -71,6 +71,11 @@ export default function AnalyticsView() {
     }
 
     const chartWidth = Math.max(data.leaveData[viewMode].length * 60, 320);
+    const maxLeaveCount = Math.max(...data.leaveData[viewMode].map(item => item.count), 0);
+    const yAxisMax = Math.max(5, Math.ceil(maxLeaveCount / 5) * 5);
+    const yAxisTicks = yAxisMax <= 5
+        ? [0, 1, 2, 3, 4, 5]
+        : Array.from({ length: Math.floor(yAxisMax / 5) + 1 }, (_, index) => index * 5);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30">
@@ -417,6 +422,9 @@ export default function AnalyticsView() {
                                             axisLine={false}
                                             tickLine={false}
                                             tick={{ fontSize: 12, fill: '#6b7280' }}
+                                            domain={[0, yAxisMax]}
+                                            ticks={yAxisTicks}
+                                            tickFormatter={(value) => value.toString()}
                                         />
                                         <Tooltip
                                             contentStyle={{
@@ -471,6 +479,9 @@ export default function AnalyticsView() {
                                                 axisLine={false}
                                                 tickLine={false}
                                                 tick={{ fontSize: 12, fill: '#6b7280' }}
+                                                domain={[0, yAxisMax]}
+                                                ticks={yAxisTicks}
+                                                tickFormatter={(value) => value.toString()}
                                             />
                                             <Tooltip
                                                 contentStyle={{
