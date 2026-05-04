@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Roro Leave Management System',
   description: 'Roro Leave Management System',
+  icons: {
+    icon: '/icon.svg',  // Replace with your icon file path
+  },
 };
 
 export default function RootLayout({

@@ -218,26 +218,30 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                         </div>
                     </form>
                 ) : (
-                    <div className="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-                        <div>
-                            <label className="text-gray-700 font-bold">Full Name</label>
-                            <p>{employee.fullName}</p>
+                    <div className="space-y-4 mt-4">
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="min-w-0">
+                                <label className="text-gray-700 font-bold">Full Name</label>
+                                <p className="truncate text-base font-medium text-slate-900">{employee.fullName}</p>
+                            </div>
+                            <div className="min-w-0 text-right">
+                                <label className="text-gray-700 font-bold">Username</label>
+                                <p className="truncate text-base font-medium text-slate-900">{employee.user?.username}</p>
+                            </div>
                         </div>
-                        <div>
-                            <label className="text-gray-700 font-bold">Username</label>
-                            <p>{employee.user?.username}</p>
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="min-w-0">
+                                <label className="text-gray-700 font-bold">Status</label>
+                                <p className="truncate text-base font-medium text-slate-900">{employee.status}</p>
+                            </div>
+                            <div className="min-w-0 text-right">
+                                <label className="text-gray-700 font-bold">Join Date</label>
+                                <p className="truncate text-base font-medium text-slate-900">{new Date(employee.joinDate).toLocaleDateString()}</p>
+                            </div>
                         </div>
                         <div>
                             <label className="text-gray-700 font-bold">Position</label>
-                            <p>{employee.position}</p>
-                        </div>
-                        <div>
-                            <label className="text-gray-700 font-bold">Status</label>
-                            <p>{employee.status}</p>
-                        </div>
-                        <div>
-                            <label className="text-gray-700 font-bold">Join Date</label>
-                            <p>{new Date(employee.joinDate).toLocaleDateString()}</p>
+                            <p className="text-base font-medium text-slate-900">{employee.position}</p>
                         </div>
                     </div>
                 )}
