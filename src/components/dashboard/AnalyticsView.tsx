@@ -70,6 +70,8 @@ export default function AnalyticsView() {
         );
     }
 
+    const chartWidth = Math.max(data.leaveData[viewMode].length * 60, 320);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30">
             {/* Hero Section */}
@@ -383,53 +385,114 @@ export default function AnalyticsView() {
                     </CardHeader>
                     <CardContent className="pt-0">
                         <div className="h-80">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart
-                                    data={data.leaveData[viewMode].map(item => ({
-                                        period: viewMode === 'monthly'
-                                            ? new Date(item.period + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-                                            : item.period.replace(/^\d{4}-\d{2}-/, '').replace('W', 'Week '),
-                                        leaves: item.count,
-                                        fill: '#7559e0'
-                                    }))}
-                                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                                >
-                                    <defs>
-                                        <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#7559e0" stopOpacity={0.8}/>
-                                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                                    <XAxis
-                                        dataKey="period"
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tick={{ fontSize: 12, fill: '#6b7280' }}
-                                    />
-                                    <YAxis
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tick={{ fontSize: 12, fill: '#6b7280' }}
-                                    />
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: 'white',
-                                            border: 'none',
-                                            borderRadius: '12px',
-                                            boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                                            fontSize: '14px'
-                                        }}
-                                        labelStyle={{ color: '#374151', fontWeight: '600' }}
-                                    />
-                                    <Bar
-                                        dataKey="leaves"
-                                        fill="url(#barGradient)"
-                                        radius={[4, 4, 0, 0]}
-                                        animationDuration={1000}
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
+                            <div className="hidden md:block h-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart
+                                        data={data.leaveData[viewMode].map(item => ({
+                                            period: viewMode === 'monthly'
+                                                ? new Date(item.period + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                                                : item.period.replace(/^\d{4}-\d{2}-/, '').replace('W', 'Week '),
+                                            leaves: item.count,
+                                            fill: '#7559e0'
+                                        }))}
+                                        margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                                        barCategoryGap="24%"
+                                    >
+                                        <defs>
+                                            <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#7559e0" stopOpacity={0.8}/>
+                                                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                        <XAxis
+                                            dataKey="period"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            interval={0}
+                                            height={40}
+                                            tick={{ fontSize: 12, fill: '#6b7280' }}
+                                        />
+                                        <YAxis
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fontSize: 12, fill: '#6b7280' }}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: 'white',
+                                                border: 'none',
+                                                borderRadius: '12px',
+                                                boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                                                fontSize: '14px'
+                                            }}
+                                            labelStyle={{ color: '#374151', fontWeight: '600' }}
+                                        />
+                                        <Bar
+                                            dataKey="leaves"
+                                            fill="url(#barGradient)"
+                                            radius={[4, 4, 0, 0]}
+                                            barSize={25}
+                                            animationDuration={1000}
+                                        />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                            <div className="md:hidden overflow-x-auto h-full">
+                                <div style={{ width: chartWidth, height: 320, display: 'inline-block' }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart
+                                            data={data.leaveData[viewMode].map(item => ({
+                                                period: viewMode === 'monthly'
+                                                    ? new Date(item.period + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                                                    : item.period.replace(/^\d{4}-\d{2}-/, '').replace('W', 'Week '),
+                                                leaves: item.count,
+                                                fill: '#7559e0'
+                                            }))}
+                                            margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+                                            barCategoryGap="24%"
+                                        >
+                                            <defs>
+                                                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#7559e0" stopOpacity={0.8}/>
+                                                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                            <XAxis
+                                                dataKey="period"
+                                                axisLine={false}
+                                                tickLine={false}
+                                                interval={0}
+                                                height={40}
+                                                tick={{ fontSize: 12, fill: '#6b7280' }}
+                                            />
+                                            <YAxis
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tick={{ fontSize: 12, fill: '#6b7280' }}
+                                            />
+                                            <Tooltip
+                                                contentStyle={{
+                                                    backgroundColor: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '12px',
+                                                    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                                                    fontSize: '14px'
+                                                }}
+                                                labelStyle={{ color: '#374151', fontWeight: '600' }}
+                                            />
+                                            <Bar
+                                                dataKey="leaves"
+                                                fill="url(#barGradient)"
+                                                radius={[4, 4, 0, 0]}
+                                                barSize={25}
+                                                animationDuration={1000}
+                                            />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
